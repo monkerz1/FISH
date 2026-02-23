@@ -24,6 +24,7 @@ interface Store {
   isClaimed: boolean;
   lastVerified: string;
   googlePlaceId: string;
+  slug: string;
 }
 
 const specialtyColors: Record<string, string> = {
@@ -282,6 +283,27 @@ export function StoreProfile({ store }: { store: Store }) {
             ))}
           </div>
         </Card>
+
+{/* Claim Listing CTA */}
+        {!store.isClaimed && (
+          <Card className="mb-8 border-2 border-dashed border-blue-300 bg-blue-50/50 p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-semibold text-foreground">Are you the owner?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Claim this listing for free to update your info, add photos, and respond to reviews.
+                </p>
+              </div>
+              
+                href={`/claim/${store.slug}`}
+                className="inline-block shrink-0 rounded-lg bg-[#4A90D9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
+              >
+                Claim This Listing
+              </a>
+            </div>
+          </Card>
+        )}
+
 
         {/* Is Store Still Open Section */}
         <Card className="border-2 border-primary/20 bg-blue-50 p-6">
