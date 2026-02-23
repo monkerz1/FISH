@@ -296,8 +296,8 @@ export function StoreProfile({ store }: { store: Store }) {
               </div>
               
                 href={`/claim/${store.slug}`}
-                className="inline-block shrink-0 rounded-lg bg-[#4A90D9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
-              >
+                className="inline-block shrink-0 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
+>
                 Claim This Listing
               </a>
             </div>
