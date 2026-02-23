@@ -54,7 +54,7 @@ export async function FeaturedCities() {
                 <p className="text-sm text-gray-600">{city.state}</p>
                 <div className="mt-4 rounded-lg bg-white py-2">
                   <p className="text-2xl font-bold text-[#4A90D9]">{city.stores}</p>
-                  <p className="text-xs text-gray-600">Verified Stores</p>
+                  <p className="text-xs text-gray-600">Stores Listed</p>
                 </div>
               </Card>
             </Link>
