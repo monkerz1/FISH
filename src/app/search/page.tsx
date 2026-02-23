@@ -13,7 +13,9 @@ import { MapPlaceholder } from '@/components/map-placeholder';
 
 const RESULTS_PER_PAGE = 6;
 
-export default function SearchPage() {
+import { Suspense } from 'react';
+
+function SearchPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
@@ -246,5 +248,19 @@ useEffect(() => {
         </div>
       </div>
     </div>
+  );
+}
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🐠</div>
+          <p className="text-muted-foreground">Loading search...</p>
+        </div>
+      </div>
+    }>
+      <SearchPageInner />
+    </Suspense>
   );
 }
