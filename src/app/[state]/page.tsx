@@ -40,6 +40,25 @@ const STATE_NAMES: Record<string, string> = {
   'WI': 'Wisconsin', 'WY': 'Wyoming'
 }
 
+export async function generateStaticParams() {
+  return Object.keys(STATE_ABBR).map((state) => ({ state }))
+}
+
+export async function generateMetadata({ params }: StatePageProps) {
+  const { state: stateSlug } = await params
+  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
+  const stateName = STATE_NAMES[stateAbbr] || stateSlug
+
+  return {
+    title: `Fish Stores in ${stateName} — Local Aquarium Shops | LFSDirectory`,
+    description: `Find local fish stores and aquarium shops in ${stateName}. Browse by city, read reviews, and discover the best LFS near you.`,
+    openGraph: {
+      title: `Fish Stores in ${stateName} | LFSDirectory`,
+      description: `Browse ${stateName}'s best local fish stores and aquarium shops by city.`,
+    },
+  }
+}
+
 interface StatePageProps {
   params: Promise<{ state: string }>
 }
