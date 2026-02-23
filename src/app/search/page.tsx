@@ -177,6 +177,32 @@ useEffect(() => {
           <p className="text-muted-foreground">
             {loading ? 'Loading results...' : `Showing ${filteredResults.length} results`}
           </p>
+
+          {/* Search Again Bar */}
+          <div className="mt-4 flex w-full max-w-lg items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search another city, state, or zip..."
+              defaultValue={query}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const val = (e.target as HTMLInputElement).value.trim();
+                  if (val) router.push(`/search?q=${encodeURIComponent(val)}`);
+                }
+              }}
+              className="flex-1 rounded-md border border-input bg-background px-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <button
+              onClick={(e) => {
+                const input = (e.currentTarget.previousElementSibling as HTMLInputElement);
+                const val = input?.value.trim();
+                if (val) router.push(`/search?q=${encodeURIComponent(val)}`);
+              }}
+              className="rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         {/* Map Toggle */}
