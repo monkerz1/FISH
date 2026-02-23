@@ -295,9 +295,10 @@ export function StoreProfile({ store }: { store: Store }) {
                 </p>
               </div>
               
+                <a
                 href={`/claim/${store.slug}`}
                 className="inline-block shrink-0 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
->
+              >
                 Claim This Listing
               </a>
             </div>
