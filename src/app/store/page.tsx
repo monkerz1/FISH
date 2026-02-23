@@ -21,6 +21,7 @@ const mockStore = {
   isClaimed: true,
   lastVerified: "2024-02-15",
   googlePlaceId: "ChIJ_-HsSoNwI4gRwKWJpHk9S-w",
+  slug: 'demo-fish-store',
 };
 
 export default function StorePage() {
