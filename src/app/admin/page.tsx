@@ -77,10 +77,10 @@ export default function AdminDashboard() {
     console.log('Edit store:', id);
   };
 
-  const handleQuickAdd = async (data: any) => {
+  const handleQuickAdd = async (data: any): Promise<void> => {
     // Would call API here
     console.log('Quick add store:', data);
-    return new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
   };
 
   return (
