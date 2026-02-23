@@ -10,6 +10,22 @@ interface StorePageProps {
   params: Promise<{ state: string; city: string; slug: string }>
 }
 
+export async function generateMetadata({ params }: StorePageProps) {
+  const { slug } = await params
+  const { data: store } = await supabase
+    .from('stores')
+    .select('name, city, state, description')
+    .eq('slug', slug)
+    .single()
+
+  if (!store) return {}
+
+  return {
+    title: `${store.name} — Fish Store in ${store.city}, ${store.state} | LFSDirectory`,
+    description: store.description || `${store.name} is a local fish store in ${store.city}, ${store.state}. Find hours, directions, and reviews on LFSDirectory.`,
+  }
+}
+
 export default async function StorePage({ params }: StorePageProps) {
   const { state: stateSlug, city: citySlug, slug } = await params
 
@@ -50,7 +66,7 @@ export default async function StorePage({ params }: StorePageProps) {
             <h1 className="text-3xl font-bold mb-1">{store.name}</h1>
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>{store.address}, {store.city}, {store.state} {store.zip}</span>
+              <span>{store.address}</span>
             </div>
           </div>
           {store.is_verified && (
@@ -99,7 +115,7 @@ export default async function StorePage({ params }: StorePageProps) {
             {store.address && (
               <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-foreground hover:text-primary">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
-                <span>{store.address}, {store.city}, {store.state} {store.zip}</span>
+                <span>{store.address}</span>
               </a>
             )}
           </div>
