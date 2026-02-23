@@ -1,8 +1,14 @@
 import { Store, Globe, RefreshCw } from 'lucide-react';
 
-export function StatsBar() {
+interface StatsBarProps {
+  storeCount?: number;
+}
+
+export function StatsBar({ storeCount = 2875 }: StatsBarProps) {
+  const displayCount = storeCount.toLocaleString();
+
   const stats = [
-    { label: '2,000+ Stores Listed', value: '2,000+', icon: Store },
+    { label: 'Stores Listed', value: `${displayCount}+`, icon: Store },
     { label: 'All 50 States', value: '50', icon: Globe },
     { label: 'Updated Weekly', value: 'Weekly', icon: RefreshCw },
   ];

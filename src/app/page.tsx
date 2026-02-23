@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { Hero } from '@/components/hero';
 import { StatsBar } from '@/components/stats-bar';
 import { BrowseSpecialty } from '@/components/browse-specialty';
@@ -7,11 +8,15 @@ import { RecentStores } from '@/components/recent-stores';
 import { CTABanner } from '@/components/cta-banner';
 import { Footer } from '@/components/footer';
 
-export default function Home() {
+export default async function Home() {
+  const { count: storeCount } = await supabase
+    .from('stores')
+    .select('*', { count: 'exact', head: true })
+
   return (
     <main className="w-full">
       <Hero />
-      <StatsBar />
+      <StatsBar storeCount={storeCount ?? 2738} />
       <BrowseSpecialty />
       <FeaturedCities />
       <HowItWorks />
