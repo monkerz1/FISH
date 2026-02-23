@@ -5,6 +5,7 @@ import { Footer } from '@/components/footer'
 import { Star, MapPin, Phone, Globe, CheckCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import StillOpenWidget from '@/components/StillOpenWidget'
 
 interface StorePageProps {
   params: Promise<{ state: string; city: string; slug: string }>
@@ -132,6 +133,14 @@ export default async function StorePage({ params }: StorePageProps) {
             <p className="text-muted-foreground">{store.description}</p>
           </div>
         )}
+
+        {/* STILL OPEN WIDGET */}
+        <div className="mb-6">
+          <StillOpenWidget
+            storeId={store.id}
+            lastVerified={store.last_verified_at || null}
+          />
+        </div>
 
         {!store.is_claimed && (
           <div className="rounded-lg border border-dashed border-border bg-muted/30 p-6 text-center">
