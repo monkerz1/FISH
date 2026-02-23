@@ -1,20 +1,40 @@
-'use client';
-
-import { Card } from '@/components/ui/card';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { Card } from '@/components/ui/card';
 
-const cities = [
-  { name: 'Los Angeles', state: 'CA', stores: 234 },
-  { name: 'Houston', state: 'TX', stores: 178 },
-  { name: 'Miami', state: 'FL', stores: 156 },
-  { name: 'Chicago', state: 'IL', stores: 189 },
-  { name: 'New York', state: 'NY', stores: 312 },
-  { name: 'Phoenix', state: 'AZ', stores: 142 },
-  { name: 'Tampa', state: 'FL', stores: 128 },
-  { name: 'Seattle', state: 'WA', stores: 167 },
+const FEATURED_CITIES = [
+  { name: 'Los Angeles', state: 'CA', stateSlug: 'california' },
+  { name: 'Houston',     state: 'TX', stateSlug: 'texas' },
+  { name: 'Miami',       state: 'FL', stateSlug: 'florida' },
+  { name: 'Chicago',     state: 'IL', stateSlug: 'illinois' },
+  { name: 'New York',    state: 'NY', stateSlug: 'new-york' },
+  { name: 'Phoenix',     state: 'AZ', stateSlug: 'arizona' },
+  { name: 'Tampa',       state: 'FL', stateSlug: 'florida' },
+  { name: 'Seattle',     state: 'WA', stateSlug: 'washington' },
 ];
 
-export function FeaturedCities() {
+export async function FeaturedCities() {
+  // Fetch real store counts for each city from Supabase
+  const { data } = await supabase
+    .from('stores')
+    .select('city, state')
+    .in('state', ['CA', 'TX', 'FL', 'IL', 'NY', 'AZ', 'WA'])
+
+  // Build a count lookup: "Los Angeles-CA" -> 47
+  const countMap: Record<string, number> = {}
+  data?.forEach(row => {
+    if (row.city && row.state) {
+      const key = `${row.city}-${row.state}`
+      countMap[key] = (countMap[key] || 0) + 1
+    }
+  })
+
+  const cities = FEATURED_CITIES.map(city => ({
+    ...city,
+    citySlug: city.name.toLowerCase().replace(/\s+/g, '-'),
+    stores: countMap[`${city.name}-${city.state}`] || 0,
+  }))
+
   return (
     <section className="w-full bg-white py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-6">
@@ -25,7 +45,10 @@ export function FeaturedCities() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cities.map((city) => (
-            <Link key={`${city.name}-${city.state}`} href={`/city/${city.state.toLowerCase()}/${city.name.toLowerCase()}`}>
+            <Link
+              key={`${city.name}-${city.state}`}
+              href={`/${city.stateSlug}/${city.citySlug}`}
+            >
               <Card className="cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100 p-6 text-center transition-all hover:shadow-lg hover:ring-2 hover:ring-[#4A90D9]">
                 <h3 className="text-xl font-bold text-gray-900">{city.name}</h3>
                 <p className="text-sm text-gray-600">{city.state}</p>
@@ -39,5 +62,5 @@ export function FeaturedCities() {
         </div>
       </div>
     </section>
-  );
+  )
 }
