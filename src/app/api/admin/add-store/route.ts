@@ -1,8 +1,7 @@
-import { createClient } from '@/utils/supabase/server'
+import { supabase } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
   const body = await req.json()
 
   const { storeName, address, city, state, zip, phone, website, specialties } = body
