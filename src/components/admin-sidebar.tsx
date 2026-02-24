@@ -15,6 +15,17 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/admin/login');
+  };
 
   return (
     <aside className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white h-screen flex flex-col border-r border-slate-700">
@@ -46,8 +57,15 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-700 text-sm text-slate-400">
-        <p>v0.1.0</p>
+      <div className="p-4 border-t border-slate-700 space-y-2">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-300 hover:bg-red-600 hover:text-white w-full"
+        >
+          <LogOut size={20} />
+          <span>Logout</span>
+        </button>
+        <p className="text-sm text-slate-400 px-4">v0.1.0</p>
       </div>
     </aside>
   );
