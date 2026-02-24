@@ -17,7 +17,7 @@ export default function AdminLogin() {
     setLoading(true)
     await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/admin` }
+      options: { emailRedirectTo: 'https://lfsdirectory.com/admin' }
     })
     setSent(true)
     setLoading(false)
