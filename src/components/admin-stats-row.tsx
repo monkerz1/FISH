@@ -27,7 +27,7 @@ export function StatsRow({ totalStores, pendingReview, claimedStores, thisWeekAd
       color: 'text-blue-600',
     },
     {
-      label: 'Pending Review',
+      label: 'Flagged Closed',
       value: pendingReview,
       icon: <Clock size={24} />,
       color: 'text-amber-600',
@@ -39,7 +39,7 @@ export function StatsRow({ totalStores, pendingReview, claimedStores, thisWeekAd
       color: 'text-green-600',
     },
     {
-      label: 'This Week Added',
+      label: 'Unclaimed Stores',
       value: thisWeekAdded,
       icon: <Zap size={24} />,
       color: 'text-purple-600',
