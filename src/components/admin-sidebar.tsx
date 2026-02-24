@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { BarChart3, ClipboardList, Store, MessageSquare, CheckSquare, Settings } from 'lucide-react';
 
 const navItems = [
