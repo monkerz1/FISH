@@ -29,7 +29,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white h-screen flex flex-col border-r border-slate-700">
+    <aside className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white min-h-full flex flex-col border-r border-slate-700 sticky top-0 self-stretch">
       {/* Logo */}
       <div className="p-6 border-b border-slate-700">
         <h1 className="text-2xl font-bold text-primary">LFS Admin</h1>
