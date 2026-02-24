@@ -163,7 +163,7 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="p-8">
+        <div className="p-8 pb-16">
           <h1 className="text-3xl font-bold mb-2 text-slate-900">Admin Dashboard</h1>
           <p className="text-slate-600 mb-8">Welcome back! Here's what's happening with your directory.</p>
 
