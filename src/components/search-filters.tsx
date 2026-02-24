@@ -20,6 +20,10 @@ interface SearchFiltersProps {
   onSpecialtiesChange: (specialties: string[]) => void;
   selectedServices: string[];
   onServicesChange: (services: string[]) => void;
+  selectedSupplies: string[];
+  onSuppliesChange: (supplies: string[]) => void;
+  showChains: boolean;
+  onShowChainsChange: (show: boolean) => void;
   openNow: boolean;
   onOpenNowChange: (openNow: boolean) => void;
   sortBy: string;
@@ -27,15 +31,45 @@ interface SearchFiltersProps {
 }
 
 const SPECIALTIES = [
-  'Saltwater & Reef',
-  'Freshwater Fish',
-  'Corals & SPS/LPS',
-  'Live Plants',
-  'Koi & Pond',
-  'Rare Species',
+  { label: 'Saltwater & Reef', value: 'saltwater' },
+  { label: 'Reef', value: 'reef' },
+  { label: 'Corals & SPS/LPS', value: 'corals' },
+  { label: 'Freshwater Fish', value: 'freshwater' },
+  { label: 'Cichlids', value: 'cichlids' },
+  { label: 'Live Plants', value: 'planted' },
+  { label: 'Invertebrates', value: 'invertebrates' },
+  { label: 'Koi & Pond', value: 'koi' },
+  { label: 'Goldfish', value: 'goldfish' },
+  { label: 'Rare Species', value: 'rare' },
 ];
 
-const SERVICES = ['Water Testing', 'Custom Tanks', 'Delivery'];
+const SERVICES = [
+  { label: 'Water Testing', value: 'water testing' },
+  { label: 'Custom Tanks', value: 'custom tanks' },
+  { label: 'Delivery', value: 'delivery' },
+  { label: 'Aquarium Maintenance', value: 'aquarium maintenance' },
+  { label: 'Installation', value: 'installation' },
+  { label: 'Aquarium Design', value: 'aquarium design' },
+  { label: 'Coral Fragging', value: 'coral fragging' },
+  { label: 'Fish Boarding', value: 'fish boarding' },
+];
+
+const SUPPLIES = [
+  { label: 'Live Rock', value: 'live rock' },
+  { label: 'Live Sand', value: 'live sand' },
+  { label: 'Frozen Food', value: 'frozen food' },
+  { label: 'Live Food', value: 'live food' },
+  { label: 'Dry Food', value: 'dry food' },
+  { label: 'RO Water', value: 'ro water' },
+  { label: 'Salt Mix', value: 'salt mix' },
+  { label: 'Reef Supplements', value: 'reef supplements' },
+  { label: 'Lighting', value: 'lighting' },
+  { label: 'Filtration', value: 'filtration' },
+  { label: 'RO Unit', value: 'ro unit' },
+  { label: 'Driftwood', value: 'driftwood' },
+  { label: 'Medications', value: 'medications' },
+  { label: 'CO2 Systems', value: 'co2 systems' },
+];
 
 export function SearchFilters({
   maxDistance,
@@ -44,23 +78,34 @@ export function SearchFilters({
   onSpecialtiesChange,
   selectedServices,
   onServicesChange,
+  selectedSupplies,
+  onSuppliesChange,
+  showChains,
+  onShowChainsChange,
   openNow,
   onOpenNowChange,
   sortBy,
   onSortChange,
 }: SearchFiltersProps) {
-  const handleSpecialtyToggle = (specialty: string) => {
-    const updated = selectedSpecialties.includes(specialty)
-      ? selectedSpecialties.filter((s) => s !== specialty)
-      : [...selectedSpecialties, specialty];
+  const handleSpecialtyToggle = (value: string) => {
+    const updated = selectedSpecialties.includes(value)
+      ? selectedSpecialties.filter((s) => s !== value)
+      : [...selectedSpecialties, value];
     onSpecialtiesChange(updated);
   };
 
-  const handleServiceToggle = (service: string) => {
-    const updated = selectedServices.includes(service)
-      ? selectedServices.filter((s) => s !== service)
-      : [...selectedServices, service];
+  const handleServiceToggle = (value: string) => {
+    const updated = selectedServices.includes(value)
+      ? selectedServices.filter((s) => s !== value)
+      : [...selectedServices, value];
     onServicesChange(updated);
+  };
+
+  const handleSupplyToggle = (value: string) => {
+    const updated = selectedSupplies.includes(value)
+      ? selectedSupplies.filter((s) => s !== value)
+      : [...selectedSupplies, value];
+    onSuppliesChange(updated);
   };
 
   return (
@@ -86,17 +131,17 @@ export function SearchFilters({
         <Label className="text-base font-semibold">Specialty</Label>
         <div className="space-y-2">
           {SPECIALTIES.map((specialty) => (
-            <div key={specialty} className="flex items-center space-x-2">
+            <div key={specialty.value} className="flex items-center space-x-2">
               <Checkbox
-                id={`specialty-${specialty}`}
-                checked={selectedSpecialties.includes(specialty)}
-                onCheckedChange={() => handleSpecialtyToggle(specialty)}
+                id={`specialty-${specialty.value}`}
+                checked={selectedSpecialties.includes(specialty.value)}
+                onCheckedChange={() => handleSpecialtyToggle(specialty.value)}
               />
               <Label
-                htmlFor={`specialty-${specialty}`}
+                htmlFor={`specialty-${specialty.value}`}
                 className="font-normal cursor-pointer"
               >
-                {specialty}
+                {specialty.label}
               </Label>
             </div>
           ))}
@@ -104,22 +149,52 @@ export function SearchFilters({
       </div>
 
       {/* Services Filter */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-3 border-t">
         <Label className="text-base font-semibold">Services</Label>
         <div className="space-y-2">
           {SERVICES.map((service) => (
-            <div key={service} className="flex items-center space-x-2">
+            <div key={service.value} className="flex items-center space-x-2">
               <Checkbox
-                id={`service-${service}`}
-                checked={selectedServices.includes(service)}
-                onCheckedChange={() => handleServiceToggle(service)}
+                id={`service-${service.value}`}
+                checked={selectedServices.includes(service.value)}
+                onCheckedChange={() => handleServiceToggle(service.value)}
               />
-              <Label htmlFor={`service-${service}`} className="font-normal cursor-pointer">
-                {service}
+              <Label htmlFor={`service-${service.value}`} className="font-normal cursor-pointer">
+                {service.label}
               </Label>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Supplies Filter */}
+      <div className="space-y-3 pt-3 border-t">
+        <Label className="text-base font-semibold">Supplies</Label>
+        <div className="space-y-2">
+          {SUPPLIES.map((supply) => (
+            <div key={supply.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`supply-${supply.value}`}
+                checked={selectedSupplies.includes(supply.value)}
+                onCheckedChange={() => handleSupplyToggle(supply.value)}
+              />
+              <Label htmlFor={`supply-${supply.value}`} className="font-normal cursor-pointer">
+                {supply.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Chain / Independent Toggle */}
+      <div className="flex items-center justify-between pt-3 border-t">
+        <div>
+          <Label htmlFor="show-chains" className="text-base font-semibold cursor-pointer">
+            Show Chain Stores
+          </Label>
+          <p className="text-xs text-muted-foreground">Petco, PetSmart, etc.</p>
+        </div>
+        <Switch id="show-chains" checked={showChains} onCheckedChange={onShowChainsChange} />
       </div>
 
       {/* Open Now Toggle */}

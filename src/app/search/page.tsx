@@ -28,6 +28,8 @@ function SearchPageInner() {
     specialtyParam ? [specialtyParam] : []
   );
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedSupplies, setSelectedSupplies] = useState<string[]>([]);
+  const [showChains, setShowChains] = useState(false);
   const [openNow, setOpenNow] = useState(false);
   const [sortBy, setSortBy] = useState('distance');
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +56,8 @@ useEffect(() => {
           description,
           specialty_tags,
           services,
+          supplies_tags,
+          store_type,
           city,
           state,
           address,
@@ -99,6 +103,8 @@ useEffect(() => {
           description: store.description,
           specialty_tags: store.specialty_tags || [],
           services: store.services || [],
+          supplies_tags: store.supplies_tags || [],
+          store_type: store.store_type || 'independent',
           hours: store.hours,
           isVerified: store.is_verified || false,
           isOpen: null,
@@ -120,12 +126,27 @@ useEffect(() => {
   // Filter results client-side
   let filteredResults = results.filter((store) => {
     if (openNow && !isStoreOpen(store.hours)) return false;
+    if (!showChains && store.store_type === 'chain') return false;
     if (selectedSpecialties.length > 0) {
       const tags = store.specialty_tags || [];
       const hasSpecialty = selectedSpecialties.some((s) =>
-        tags.some((t: string) => t.toLowerCase().includes(s.toLowerCase()))
+        tags.some((t: string) => t.toLowerCase() === s.toLowerCase())
       );
       if (!hasSpecialty) return false;
+    }
+    if (selectedServices.length > 0) {
+      const svcs = store.services || [];
+      const hasService = selectedServices.some((s) =>
+        svcs.some((t: string) => t.toLowerCase() === s.toLowerCase())
+      );
+      if (!hasService) return false;
+    }
+    if (selectedSupplies.length > 0) {
+      const sups = store.supplies_tags || [];
+      const hasSupply = selectedSupplies.some((s) =>
+        sups.some((t: string) => t.toLowerCase() === s.toLowerCase())
+      );
+      if (!hasSupply) return false;
     }
     return true;
   });
@@ -223,6 +244,10 @@ useEffect(() => {
                 onSpecialtiesChange={setSelectedSpecialties}
                 selectedServices={selectedServices}
                 onServicesChange={setSelectedServices}
+                selectedSupplies={selectedSupplies}
+                onSuppliesChange={setSelectedSupplies}
+                showChains={showChains}
+                onShowChainsChange={setShowChains}
                 openNow={openNow}
                 onOpenNowChange={setOpenNow}
                 sortBy={sortBy}

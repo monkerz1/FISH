@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin-sidebar';
 import { StatsRow } from '@/components/admin-stats-row';
 import { PendingSubmissionsTable } from '@/components/pending-submissions-table';
@@ -61,6 +63,23 @@ const mockRecentlyAdded = [
 
 export default function AdminDashboard() {
   const [pendingStores, setPendingStores] = useState(mockPendingStores);
+  const router = useRouter();
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const ALLOWED_EMAIL = 'killerpings@gmail.com';
+      if (!user || user.email !== ALLOWED_EMAIL) {
+        router.push('/admin/login');
+      }
+    };
+    checkUser();
+  }, []);
 
   const handleApprove = (id: string) => {
     setPendingStores(prev => prev.filter(store => store.id !== id));
