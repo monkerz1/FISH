@@ -12,12 +12,18 @@ export default function AdminLogin() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  const ALLOWED_EMAIL = 'killerpings@gmail.com'
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (email.toLowerCase() !== ALLOWED_EMAIL) {
+      alert('Access denied. This admin area is private.')
+      return
+    }
     setLoading(true)
     await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: 'https://lfsdirectory.com/admin' }
+      options: { emailRedirectTo: 'https://lfsdirectory.com/auth/callback' }
     })
     setSent(true)
     setLoading(false)
