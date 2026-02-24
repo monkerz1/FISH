@@ -157,7 +157,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-slate-100">
       {/* Sidebar */}
       <AdminSidebar />
 
