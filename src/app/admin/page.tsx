@@ -62,7 +62,7 @@ const mockRecentlyAdded = [
 ];
 
 export default function AdminDashboard() {
-  const [pendingStores, setPendingStores] = useState(mockPendingStores);
+  const [pendingStores, setPendingStores] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalStores: 0, flaggedClosed: 0, claimedStores: 0, unclaimedStores: 0 });
   const router = useRouter();
 
@@ -91,6 +91,28 @@ export default function AdminDashboard() {
         claimedStores: claimedRes.count || 0,
         unclaimedStores: unclaimedRes.count || 0,
       });
+
+      // Fetch flagged stores for pending submissions table
+      const { data: flaggedStores } = await supabase
+        .from('stores')
+        .select('id, name, city, state, address, phone, website, specialty_tags, created_at')
+        .eq('verification_status', 'flagged_closed')
+        .order('created_at', { ascending: false });
+
+      if (flaggedStores) {
+        setPendingStores(flaggedStores.map(s => ({
+          id: s.id,
+          name: s.name,
+          city: s.city,
+          state: s.state,
+          address: s.address || '',
+          phone: s.phone || '',
+          website: s.website || '',
+          specialties: s.specialty_tags || [],
+          submittedBy: 'Community Report',
+          submittedDate: new Date(s.created_at).toLocaleDateString(),
+        })));
+      }
     };
     checkUser();
   }, []);
