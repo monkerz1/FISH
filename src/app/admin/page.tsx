@@ -63,6 +63,7 @@ const mockRecentlyAdded = [
 
 export default function AdminDashboard() {
   const [pendingStores, setPendingStores] = useState(mockPendingStores);
+  const [stats, setStats] = useState({ totalStores: 0, flaggedClosed: 0, claimedStores: 0, unclaimedStores: 0 });
   const router = useRouter();
 
   const supabase = createBrowserClient(
@@ -76,7 +77,20 @@ export default function AdminDashboard() {
       const ALLOWED_EMAIL = 'killerpings@gmail.com';
       if (!user || user.email !== ALLOWED_EMAIL) {
         router.push('/admin/login');
+        return;
       }
+      const [totalRes, flaggedRes, claimedRes, unclaimedRes] = await Promise.all([
+        supabase.from('stores').select('*', { count: 'exact', head: true }),
+        supabase.from('stores').select('*', { count: 'exact', head: true }).eq('verification_status', 'flagged_closed'),
+        supabase.from('stores').select('*', { count: 'exact', head: true }).eq('is_claimed', true),
+        supabase.from('stores').select('*', { count: 'exact', head: true }).eq('is_claimed', false),
+      ]);
+      setStats({
+        totalStores: totalRes.count || 0,
+        flaggedClosed: flaggedRes.count || 0,
+        claimedStores: claimedRes.count || 0,
+        unclaimedStores: unclaimedRes.count || 0,
+      });
     };
     checkUser();
   }, []);
@@ -115,10 +129,10 @@ export default function AdminDashboard() {
 
           {/* Stats Row */}
           <StatsRow
-            totalStores={2847}
-            pendingReview={pendingStores.length}
-            claimedStores={1234}
-            thisWeekAdded={18}
+            totalStores={stats.totalStores}
+            pendingReview={stats.flaggedClosed}
+            claimedStores={stats.claimedStores}
+            thisWeekAdded={stats.unclaimedStores}
           />
 
           {/* Pending Submissions */}
