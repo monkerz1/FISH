@@ -48,21 +48,10 @@ const mockPendingStores = [
   },
 ];
 
-const mockRecentlyAdded = [
-  { id: '10', name: 'Aquatic Wonders', city: 'Boston', state: 'MA', dateAdded: '2024-02-10' },
-  { id: '11', name: 'The Fish Tank', city: 'Chicago', state: 'IL', dateAdded: '2024-02-09' },
-  { id: '12', name: 'Marine Life Center', city: 'San Diego', state: 'CA', dateAdded: '2024-02-08' },
-  { id: '13', name: 'Freshwater Depot', city: 'Denver', state: 'CO', dateAdded: '2024-02-07' },
-  { id: '14', name: 'Reef Specialists', city: 'Tampa', state: 'FL', dateAdded: '2024-02-06' },
-  { id: '15', name: 'Garden Aquatics', city: 'Portland', state: 'OR', dateAdded: '2024-02-05' },
-  { id: '16', name: 'Specialty Imports', city: 'Austin', state: 'TX', dateAdded: '2024-02-04' },
-  { id: '17', name: 'Crystal Waters', city: 'Seattle', state: 'WA', dateAdded: '2024-02-03' },
-  { id: '18', name: 'Exotic Fish Co', city: 'New York', state: 'NY', dateAdded: '2024-02-02' },
-  { id: '19', name: 'Pet Paradise', city: 'Miami', state: 'FL', dateAdded: '2024-02-01' },
-];
 
 export default function AdminDashboard() {
   const [pendingStores, setPendingStores] = useState<any[]>([]);
+  const [recentStores, setRecentStores] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalStores: 0, flaggedClosed: 0, claimedStores: 0, unclaimedStores: 0 });
   const router = useRouter();
 
@@ -99,6 +88,9 @@ export default function AdminDashboard() {
         .eq('verification_status', 'flagged_closed')
         .order('created_at', { ascending: false });
 
+      // Fetch recently added stores
+      await fetchRecentStores();
+
       if (flaggedStores) {
         setPendingStores(flaggedStores.map(s => ({
           id: s.id,
@@ -117,6 +109,23 @@ export default function AdminDashboard() {
     checkUser();
   }, []);
 
+  const fetchRecentStores = async () => {
+    const { data } = await supabase
+      .from('stores')
+      .select('id, name, city, state, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    if (data) {
+      setRecentStores(data.map(s => ({
+        id: s.id,
+        name: s.name,
+        city: s.city,
+        state: s.state,
+        dateAdded: new Date(s.created_at).toLocaleDateString(),
+      })));
+    }
+  };
+
   const handleApprove = (id: string) => {
     setPendingStores(prev => prev.filter(store => store.id !== id));
     // Would call API here to save approval
@@ -133,9 +142,18 @@ export default function AdminDashboard() {
   };
 
   const handleQuickAdd = async (data: any): Promise<void> => {
-    // Would call API here
-    console.log('Quick add store:', data);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const res = await fetch('/api/admin/add-store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      alert('Error adding store: ' + result.error);
+      throw new Error(result.error);
+    }
+    // Refresh recently added list
+    await fetchRecentStores();
   };
 
   return (
@@ -166,7 +184,7 @@ export default function AdminDashboard() {
           />
 
           {/* Recently Added */}
-          <RecentlyAdded stores={mockRecentlyAdded} />
+          <RecentlyAdded stores={recentStores} />
 
           {/* Quick Add Store */}
           <QuickAddStore onSubmit={handleQuickAdd} />

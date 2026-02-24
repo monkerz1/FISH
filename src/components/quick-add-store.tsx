@@ -96,7 +96,7 @@ export function QuickAddStore({ onSubmit }: QuickAddStoreProps) {
   };
 
   return (
-    <div>
+    <div className="mb-8">
       <h2 className="text-2xl font-bold mb-4 text-slate-900">Quick Add Store</h2>
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
