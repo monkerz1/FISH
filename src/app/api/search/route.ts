@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Try geocoding the query
-  const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query + ', USA')}&key=${process.env.GOOGLE_PLACES_API_KEY}`
+  const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query + ', USA')}&key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}`
   
   try {
     const geocodeRes = await fetch(geocodeUrl)
