@@ -54,7 +54,13 @@ function SearchPageInner() {
           .map((store: any) => ({
             id: store.id,
             name: store.name,
-            city: store.city,
+            city: (() => {
+              if (store.address) {
+                const parts = store.address.split(',')
+                if (parts.length >= 2) return parts[parts.length - 3]?.trim() || store.city
+              }
+              return store.city
+            })(),
             state: store.state,
             address: store.address,
             zip: store.zip,
