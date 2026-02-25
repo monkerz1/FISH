@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const CHAIN_BLOCKLIST = ['petsmart', 'petco', 'walmart', 'pet supplies plus', 'tractor supply', 'target', 'shedd aquarium', 'wild reef', 'h mart', 'fresh market', 'grocery']
+const CHAIN_BLOCKLIST = ['walmart', 'tractor supply', 'target', 'shedd aquarium', 'wild reef', 'h mart', 'fresh market', 'grocery']
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
