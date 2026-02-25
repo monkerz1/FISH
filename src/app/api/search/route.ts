@@ -28,10 +28,16 @@ export async function GET(request: NextRequest) {
 
     const { lat, lng } = geocodeData.results[0].geometry.location
 
+    const CHAIN_BLOCKLIST = ['petsmart', 'petco', 'walmart', 'pet supplies plus', 'tractor supply', 'target', 'shedd aquarium']
+
     const { data, error } = await supabase.rpc('search_stores_near', {
       user_lat: lat,
       user_lng: lng,
       radius_miles: radius
+    })
+
+    const filtered = (data || []).filter((store: any) => {
+      const nameLower = store.name.toLowerCase()
     })
 
     if (error) {
@@ -40,8 +46,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      results: data || [],
-      total: (data || []).length,
+      results: filtered,
+      total: filtered.length,
       location: { lat, lng, label: geocodeData.results[0].formatted_address }
     })
 
