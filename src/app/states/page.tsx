@@ -98,6 +98,7 @@ export default async function StatesPage() {
     .from('stores')
     .select('state')
     .not('state', 'is', null)
+    .limit(10000)
 
   const stateCounts: Record<string, number> = {}
   rows?.forEach((r) => {
