@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Footer } from '@/components/footer'
 
+export const dynamic = 'force-dynamic'
+
 const US_STATES: Record<string, { name: string; slug: string }> = {
   AL: { name: 'Alabama', slug: 'alabama' },
   AK: { name: 'Alaska', slug: 'alaska' },
