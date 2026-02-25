@@ -6,6 +6,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const CHAIN_BLOCKLIST = ['petsmart', 'petco', 'walmart', 'pet supplies plus', 'tractor supply', 'target', 'shedd aquarium']
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q') || ''
@@ -15,20 +17,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [], total: 0 })
   }
 
-  // Try geocoding the query
-  const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query + ', USA')}&key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}`
-  
   try {
-    const geocodeRes = await fetch(geocodeUrl)
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', USA')}&format=json&limit=1`
+    const geocodeRes = await fetch(nominatimUrl, {
+      headers: { 'User-Agent': 'LFSDirectory/1.0 (lfsdirectory.com)' }
+    })
     const geocodeData = await geocodeRes.json()
 
-    if (!geocodeData.results?.length) {
+    if (!geocodeData.length) {
       return NextResponse.json({ results: [], total: 0, error: 'Location not found' })
     }
 
-    const { lat, lng } = geocodeData.results[0].geometry.location
-
-    const CHAIN_BLOCKLIST = ['petsmart', 'petco', 'walmart', 'pet supplies plus', 'tractor supply', 'target', 'shedd aquarium']
+    const lat = parseFloat(geocodeData[0].lat)
+    const lng = parseFloat(geocodeData[0].lon)
 
     const { data, error } = await supabase.rpc('search_stores_near', {
       user_lat: lat,
@@ -36,19 +37,20 @@ export async function GET(request: NextRequest) {
       radius_miles: radius
     })
 
-    const filtered = (data || []).filter((store: any) => {
-      const nameLower = store.name.toLowerCase()
-    })
-
     if (error) {
       console.error('Supabase RPC error:', error)
       return NextResponse.json({ results: [], total: 0, error: error.message })
     }
 
+    const filtered = (data || []).filter((store: any) => {
+      const nameLower = store.name.toLowerCase()
+      return !CHAIN_BLOCKLIST.some(chain => nameLower.includes(chain))
+    })
+
     return NextResponse.json({
       results: filtered,
       total: filtered.length,
-      location: { lat, lng, label: geocodeData.results[0].formatted_address }
+      location: { lat, lng, label: geocodeData[0].display_name }
     })
 
   } catch (err) {
