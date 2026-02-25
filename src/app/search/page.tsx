@@ -3,17 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { SearchFilters } from '@/components/search-filters';
 import { StoreResultCard } from '@/components/store-result-card';
 import { SearchPagination } from '@/components/search-pagination';
 import { MapToggle } from '@/components/map-toggle';
 import { NoResultsState } from '@/components/no-results-state';
 import { MapPlaceholder } from '@/components/map-placeholder';
+import { Suspense } from 'react';
 
 const RESULTS_PER_PAGE = 6;
-
-import { Suspense } from 'react';
 
 function SearchPageInner() {
   const router = useRouter();
@@ -35,7 +33,7 @@ function SearchPageInner() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isMapView, setIsMapView] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     async function fetchStores() {
       setLoading(true);
       setCurrentPage(1);
@@ -46,104 +44,51 @@ useEffect(() => {
         return;
       }
 
-      let dbQuery = supabase
-        .from('stores')
-        .select(`
-          id,
-          name,
-          phone,
-          website,
-          description,
-          specialty_tags,
-          services,
-          supplies_tags,
-          store_type,
-          city,
-          state,
-          address,
-          zip,
-          lat,
-          lng,
-          rating,
-          review_count,
-          is_verified,
-          is_claimed,
-          hours
-        `)
-        .limit(100);
+      try {
+        const params = new URLSearchParams({ q: query, radius: String(maxDistance) });
+        const res = await fetch(`/api/search?${params}`);
+        const json = await res.json();
 
-      const STATE_ABBREV: Record<string, string> = {
-  alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA',
-  colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA',
-  hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA',
-  kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD',
-  massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS',
-  missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV', 'new hampshire': 'NH',
-  'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC',
-  'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA',
-  'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD', tennessee: 'TN',
-  texas: 'TX', utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA',
-  'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY',
-};
+        const normalized: any[] = (json.results || [])
+          .filter((s: any) => s.id && s.name)
+          .map((store: any) => ({
+            id: store.id,
+            name: store.name,
+            city: store.city,
+            state: store.state,
+            address: store.address,
+            zip: store.zip,
+            latitude: store.lat,
+            longitude: store.lng,
+            phone: store.phone,
+            website_url: store.website,
+            description: store.description,
+            specialty_tags: store.specialty_tags || [],
+            services: store.services || [],
+            supplies_tags: store.supplies_tags || [],
+            store_type: store.store_type || 'independent',
+            hours: store.hours,
+            isVerified: store.is_verified || false,
+            isOpen: null,
+            rating: store.rating || 4.5,
+            reviewCount: store.review_count || 0,
+            distance: Math.round((store.distance_miles || 0) * 10) / 10,
+          }));
 
-const stateAbbrev = STATE_ABBREV[query.toLowerCase()];
-
-if (query) {
-  if (stateAbbrev) {
-    dbQuery = dbQuery.eq('state', stateAbbrev);
-  } else {
-    dbQuery = dbQuery.or(
-      `city.ilike.%${query}%,state.ilike.%${query}%,zip.ilike.%${query}%`
-    );
-  }
-}
-
-      const { data, error } = await dbQuery;
-
-      if (error) {
-        console.error('Store fetch error:', error);
+        setResults(normalized);
+      } catch (err) {
+        console.error('Search error:', err);
         setResults([]);
-        setLoading(false);
-        return;
       }
 
-      const normalized: any[] = (data || [])
-        .filter((s: any) => s.id && s.name)
-        .map((store: any) => ({
-          id: store.id,
-          name: store.name,
-          city: store.city,
-          state: store.state,
-          address: store.address,
-          zip: store.zip,
-          latitude: store.lat,
-          longitude: store.lng,
-          phone: store.phone,
-          website_url: store.website,
-          description: store.description,
-          specialty_tags: store.specialty_tags || [],
-          services: store.services || [],
-          supplies_tags: store.supplies_tags || [],
-          store_type: store.store_type || 'independent',
-          hours: store.hours,
-          isVerified: store.is_verified || false,
-          isOpen: null,
-          rating: store.rating || 4.5,
-          reviewCount: store.review_count || 0,
-          distance: 0,
-        }));
-
-      setResults(normalized);
       setLoading(false);
     }
 
     fetchStores();
-  }, [query, specialtyParam]);  
+  }, [query, specialtyParam, maxDistance]);
 
-  // Placeholder — hours parsing can be added once hours format is confirmed
   const isStoreOpen = (_hours: any) => null;
 
-  // Filter results client-side
   let filteredResults = results.filter((store) => {
     if (openNow && !isStoreOpen(store.hours)) return false;
     if (!showChains && store.store_type === 'chain') return false;
@@ -171,14 +116,12 @@ if (query) {
     return true;
   });
 
-  // Sort
   if (sortBy === 'rating') {
     filteredResults.sort((a, b) => b.rating - a.rating);
   } else if (sortBy === 'verified') {
     filteredResults.sort((a, b) => (a.isVerified === b.isVerified ? 0 : a.isVerified ? -1 : 1));
   }
 
-  // Pagination
   const totalPages = Math.ceil(filteredResults.length / RESULTS_PER_PAGE);
   const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
   const paginatedResults = filteredResults.slice(startIndex, startIndex + RESULTS_PER_PAGE);
@@ -203,7 +146,6 @@ if (query) {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           {loading ? (
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
@@ -218,8 +160,6 @@ if (query) {
           <p className="text-muted-foreground">
             {loading ? 'Loading results...' : `Showing ${filteredResults.length} results`}
           </p>
-
-          {/* Search Again Bar */}
           <div className="mt-4 flex w-full max-w-lg items-center gap-2">
             <input
               type="text"
@@ -246,14 +186,11 @@ if (query) {
           </div>
         </div>
 
-        {/* Map Toggle */}
         <div className="mb-6">
           <MapToggle isMapView={isMapView} onToggle={() => setIsMapView(!isMapView)} />
         </div>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filters */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 bg-card rounded-lg p-6 border">
               <h2 className="text-lg font-bold mb-6">Filters</h2>
@@ -276,7 +213,6 @@ if (query) {
             </div>
           </div>
 
-          {/* Results */}
           <div className="lg:col-span-3 space-y-4">
             {loading ? (
               <div className="text-center py-16 text-muted-foreground">
@@ -321,6 +257,7 @@ if (query) {
     </div>
   );
 }
+
 export default function SearchPage() {
   return (
     <Suspense fallback={
