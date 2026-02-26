@@ -93,7 +93,7 @@ export function StoreResultCard({
             <div
               className={`font-medium ${isOpen ? 'text-emerald-600' : 'text-red-600'}`}
             >
-              {isOpen ? 'Open Now' : 'Closed'} • {hours}
+              {isOpen ? 'Open Now' : 'Closed'}{hours && hours !== 'Hours not listed' ? ` • ${hours}` : ''}
             </div>
           </div>
 
