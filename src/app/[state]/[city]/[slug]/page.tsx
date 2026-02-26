@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Footer } from '@/components/footer'
 import StillOpenWidget from '@/components/StillOpenWidget'
+import PhotoGallery from '@/components/PhotoGallery'
 
 interface StorePageProps {
   params: Promise<{ state: string; city: string; slug: string }>
@@ -34,9 +35,6 @@ const SPECIALTY_CONFIG: Record<string, { label: string; color: string; bg: strin
   invertebrates: { label: 'Inverts',     color: '#be185d', bg: '#fce7f3', border: '#f9a8d4' },
 }
 
-function photoUrl(resourceName: string) {
-  return `https://places.googleapis.com/v1/${resourceName}/media?maxWidthPx=1200&key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}`
-}
 
 function SpecialtyBadge({ tag }: { tag: string }) {
   const cfg = SPECIALTY_CONFIG[tag.toLowerCase()] || { label: tag, color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' }
@@ -61,33 +59,6 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-function PhotoGallery({ photos }: { photos: string[] }) {
-  if (!photos || photos.length === 0 || photos[0] === '__none') return null
-  const validPhotos = photos.filter(p => p && p !== '__none').slice(0, 10)
-  if (validPhotos.length === 0) return null
-  const heroUrl = photoUrl(validPhotos[0])
-  const thumbUrls = validPhotos.slice(1, 5).map(p => photoUrl(p))
-  return (
-    <div className="rounded-t-2xl overflow-hidden">
-      <div className="relative bg-slate-900" style={{ height: '380px' }}>
-        <img src={heroUrl} alt="Store photo" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-          📷 {validPhotos.length} photo{validPhotos.length > 1 ? 's' : ''}
-        </div>
-      </div>
-      {thumbUrls.length > 0 && (
-        <div className="flex gap-1 p-2 bg-slate-50">
-          {thumbUrls.map((url, i) => (
-            <div key={i} className="flex-1 rounded-lg overflow-hidden" style={{ height: '64px' }}>
-              <img src={url} alt="" className="w-full h-full object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default async function StorePage({ params }: StorePageProps) {
   const { state: stateSlug, city: citySlug, slug } = await params
