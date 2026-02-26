@@ -12,38 +12,11 @@ export async function generateMetadata({ params }: StorePageProps) {
   const { slug } = await params
   const { data: store } = await supabase
     .from('stores')
-    .select('*')
+    .select('name, city, state, description')
     .eq('slug', slug)
     .single()
 
-  if (!store) notFound()
-
-  const { data: hoursRows } = await supabase
-    .from('store_hours')
-    .select('*')
-    .eq('store_id', store.id)
-    .order('day_of_week')
-
-  const storeHours = hoursRows || []
-
-  const timezone = store.timezone || 'America/New_York'
-  const nowInZone = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }))
-  const todayDay = nowInZone.getDay()
-  const nowMinutes = nowInZone.getHours() * 60 + nowInZone.getMinutes()
-  const todayHours = storeHours.find((h: { day_of_week: number }) => h.day_of_week === todayDay)
-  let isOpenNow = false
-  if (todayHours && !todayHours.is_closed && todayHours.open_time && todayHours.close_time) {
-    const [openH, openM] = todayHours.open_time.split(':').map(Number)
-    const [closeH, closeM] = todayHours.close_time.split(':').map(Number)
-    isOpenNow = nowMinutes >= (openH * 60 + openM) && nowMinutes < (closeH * 60 + closeM)
-  }
-
-  function formatTime(t: string) {
-    const [h, m] = t.split(':').map(Number)
-    const ampm = h >= 12 ? 'PM' : 'AM'
-    const hour = h % 12 || 12
-    return `${hour}:${String(m).padStart(2, '0')} ${ampm}`
-  }
+  if (!store) return {}
 
   return {
     title: `${store.name} — Fish Store in ${store.city}, ${store.state} | LFSDirectory`,
@@ -126,6 +99,33 @@ export default async function StorePage({ params }: StorePageProps) {
     .single()
 
   if (!store) notFound()
+
+  const { data: hoursRows } = await supabase
+    .from('store_hours')
+    .select('*')
+    .eq('store_id', store.id)
+    .order('day_of_week')
+
+  const storeHours = hoursRows || []
+
+  const timezone = store.timezone || 'America/New_York'
+  const nowInZone = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }))
+  const todayDay = nowInZone.getDay()
+  const nowMinutes = nowInZone.getHours() * 60 + nowInZone.getMinutes()
+  const todayHours = storeHours.find((h: { day_of_week: number }) => h.day_of_week === todayDay)
+  let isOpenNow = false
+  if (todayHours && !todayHours.is_closed && todayHours.open_time && todayHours.close_time) {
+    const [openH, openM] = todayHours.open_time.split(':').map(Number)
+    const [closeH, closeM] = todayHours.close_time.split(':').map(Number)
+    isOpenNow = nowMinutes >= (openH * 60 + openM) && nowMinutes < (closeH * 60 + closeM)
+  }
+
+  function formatTime(t: string) {
+    const [h, m] = t.split(':').map(Number)
+    const ampm = h >= 12 ? 'PM' : 'AM'
+    const hour = h % 12 || 12
+    return `${hour}:${String(m).padStart(2, '0')} ${ampm}`
+  }
 
   const cityName = citySlug.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
   const displayAddress = `${store.address}, ${store.city}, ${store.state} ${store.zip || ""}`
