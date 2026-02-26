@@ -101,7 +101,7 @@ export default async function StorePage({ params }: StorePageProps) {
   if (!store) notFound()
 
   const cityName = citySlug.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-  const displayAddress = `${store.address}, ${store.city}, ${store.state} ${store.zip}`
+  const displayAddress = `${store.address}, ${store.city}, ${store.state} ${store.zip || ""}`
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayAddress)}`
   const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(displayAddress)}`
   const photos: string[] = Array.isArray(store.photos) ? store.photos : []
@@ -346,7 +346,7 @@ export default async function StorePage({ params }: StorePageProps) {
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Address</div>
-                  <div className="text-sm font-medium text-slate-800 leading-snug">{displayAddress}</div>
+                  <div className="text-sm font-medium text-slate-800 leading-snug">{store.address}, {store.city}, {store.state} {store.zip || ''}</div>
                 </div>
               </div>
               <a href={dirUrl} target="_blank" rel="noopener noreferrer"
