@@ -12,11 +12,38 @@ export async function generateMetadata({ params }: StorePageProps) {
   const { slug } = await params
   const { data: store } = await supabase
     .from('stores')
-    .select('name, city, state, description')
+    .select('*')
     .eq('slug', slug)
     .single()
 
-  if (!store) return {}
+  if (!store) notFound()
+
+  const { data: hoursRows } = await supabase
+    .from('store_hours')
+    .select('*')
+    .eq('store_id', store.id)
+    .order('day_of_week')
+
+  const storeHours = hoursRows || []
+
+  const timezone = store.timezone || 'America/New_York'
+  const nowInZone = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }))
+  const todayDay = nowInZone.getDay()
+  const nowMinutes = nowInZone.getHours() * 60 + nowInZone.getMinutes()
+  const todayHours = storeHours.find((h: { day_of_week: number }) => h.day_of_week === todayDay)
+  let isOpenNow = false
+  if (todayHours && !todayHours.is_closed && todayHours.open_time && todayHours.close_time) {
+    const [openH, openM] = todayHours.open_time.split(':').map(Number)
+    const [closeH, closeM] = todayHours.close_time.split(':').map(Number)
+    isOpenNow = nowMinutes >= (openH * 60 + openM) && nowMinutes < (closeH * 60 + closeM)
+  }
+
+  function formatTime(t: string) {
+    const [h, m] = t.split(':').map(Number)
+    const ampm = h >= 12 ? 'PM' : 'AM'
+    const hour = h % 12 || 12
+    return `${hour}:${String(m).padStart(2, '0')} ${ampm}`
+  }
 
   return {
     title: `${store.name} — Fish Store in ${store.city}, ${store.state} | LFSDirectory`,
@@ -159,6 +186,14 @@ export default async function StorePage({ params }: StorePageProps) {
                     <StarRating rating={store.rating} />
                     <span className="text-slate-400 text-sm">·</span>
                     <span className="text-sm text-slate-500">{store.review_count?.toLocaleString()} Google reviews</span>
+                    {storeHours.length > 0 && (
+                      <>
+                        <span className="text-slate-400 text-sm">·</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isOpenNow ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                          {isOpenNow ? '● Open Now' : '● Closed'}
+                        </span>
+                      </>
+                    )}
                     {store.price_level && (
                       <>
                         <span className="text-slate-400 text-sm">·</span>
@@ -239,18 +274,23 @@ export default async function StorePage({ params }: StorePageProps) {
                 <span className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center text-sm">🕐</span>
                 Hours
               </h2>
-              {store.hours ? (
+              {storeHours.length > 0 ? (
                 <div className="space-y-1 text-sm">
                   {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((day, i) => {
-                    const h = Array.isArray(store.hours) ? store.hours.find((x: { day_of_week: number }) => x.day_of_week === i) : null
-                    const isToday = new Date().getDay() === i
+                    const h = storeHours.find((x: { day_of_week: number }) => x.day_of_week === i)
+                    const isToday = todayDay === i
                     return (
                       <div key={day} className={`flex justify-between py-2 px-3 rounded-lg ${isToday ? 'bg-blue-50 font-semibold text-blue-800' : 'text-slate-700'}`}>
                         <span>{day}</span>
-                        <span>{h ? `${h.open_time} – ${h.close_time}` : 'Call for hours'}</span>
+                        <span>
+                          {h && !h.is_closed && h.open_time && h.close_time
+                            ? `${formatTime(h.open_time)} – ${formatTime(h.close_time)}`
+                            : h?.is_closed ? 'Closed' : 'Call for hours'}
+                        </span>
                       </div>
                     )
                   })}
+                  <p className="text-xs text-slate-400 pt-2 px-1">Times shown in {timezone.replace('_', ' ')}</p>
                 </div>
               ) : (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
