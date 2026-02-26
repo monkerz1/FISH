@@ -84,7 +84,6 @@ export default async function StatePage({ params }: StatePageProps) {
 
   const cities = Object.entries(cityCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 12)
     .map(([name, storeCount]) => ({
       name,
       storeCount,

@@ -1,3 +1,5 @@
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
@@ -36,7 +38,6 @@ function CityCard({ name, storeCount, topSpecialty, state }: CityCardProps) {
               {storeCount} {storeCount === 1 ? 'store' : 'stores'}
             </p>
           </div>
-
           <div className="flex items-center justify-between">
             <Badge className={getCategoryColor(topSpecialty)}>
               {topSpecialty}
@@ -57,7 +58,9 @@ interface CitiesGridProps {
 }
 
 export function CitiesGrid({ cities, state }: CitiesGridProps) {
+  const [showAll, setShowAll] = useState(false);
   const sortedCities = [...cities].sort((a, b) => b.storeCount - a.storeCount);
+  const visibleCities = showAll ? sortedCities : sortedCities.slice(0, 12);
 
   return (
     <div className="w-full bg-background py-12 md:py-16">
@@ -65,9 +68,8 @@ export function CitiesGrid({ cities, state }: CitiesGridProps) {
         <h2 className="text-3xl font-bold text-foreground mb-8">
           Browse by City
         </h2>
-
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {sortedCities.map((city) => (
+          {visibleCities.map((city) => (
             <CityCard
               key={city.name}
               name={city.name}
@@ -77,6 +79,16 @@ export function CitiesGrid({ cities, state }: CitiesGridProps) {
             />
           ))}
         </div>
+        {sortedCities.length > 12 && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="px-6 py-2 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors"
+            >
+              {showAll ? 'Show Less' : `Show All ${sortedCities.length} Cities`}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
