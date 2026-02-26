@@ -346,7 +346,7 @@ export default async function StorePage({ params }: StorePageProps) {
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Address</div>
-                  <div className="text-sm font-medium text-slate-800 leading-snug">{store.address}, {store.city}, {store.state} {store.zip || ''}</div>
+                  <div className="text-sm font-medium text-slate-800 leading-snug">{store.address}</div>
                 </div>
               </div>
               <a href={dirUrl} target="_blank" rel="noopener noreferrer"
