@@ -70,7 +70,7 @@ useEffect(() => {
             store_type: store.store_type || 'independent',
             hours: store.hours,
             isVerified: store.is_verified || false,
-            isOpen: null,
+            isOpen: store.is_open ?? null,
             rating: store.rating || 4.5,
             reviewCount: store.review_count || 0,
             distance: Math.round(store.distance_miles * 10) / 10,
