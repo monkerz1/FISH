@@ -9,9 +9,10 @@ import { SearchPagination } from '@/components/search-pagination';
 import { MapToggle } from '@/components/map-toggle';
 import { NoResultsState } from '@/components/no-results-state';
 import { MapPlaceholder } from '@/components/map-placeholder';
-import { Suspense } from 'react';
 
 const RESULTS_PER_PAGE = 6;
+
+import { Suspense } from 'react';
 
 function SearchPageInner() {
   const router = useRouter();
@@ -33,7 +34,7 @@ function SearchPageInner() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isMapView, setIsMapView] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     async function fetchStores() {
       setLoading(true);
       setCurrentPage(1);
@@ -54,13 +55,7 @@ function SearchPageInner() {
           .map((store: any) => ({
             id: store.id,
             name: store.name,
-            city: (() => {
-              if (store.address) {
-                const parts = store.address.split(',')
-                if (parts.length >= 2) return parts[parts.length - 3]?.trim() || store.city
-              }
-              return store.city
-            })(),
+            city: store.city,
             state: store.state,
             address: store.address,
             zip: store.zip,
@@ -78,7 +73,7 @@ function SearchPageInner() {
             isOpen: null,
             rating: store.rating || 4.5,
             reviewCount: store.review_count || 0,
-            distance: Math.round((store.distance_miles || 0) * 10) / 10,
+            distance: Math.round(store.distance_miles * 10) / 10,
           }));
 
         setResults(normalized);
@@ -93,8 +88,10 @@ function SearchPageInner() {
     fetchStores();
   }, [query, specialtyParam, maxDistance]);
 
+  // Placeholder — hours parsing can be added once hours format is confirmed
   const isStoreOpen = (_hours: any) => null;
 
+  // Filter results client-side
   let filteredResults = results.filter((store) => {
     if (openNow && !isStoreOpen(store.hours)) return false;
     if (!showChains && store.store_type === 'chain') return false;
@@ -122,12 +119,14 @@ function SearchPageInner() {
     return true;
   });
 
+  // Sort
   if (sortBy === 'rating') {
     filteredResults.sort((a, b) => b.rating - a.rating);
   } else if (sortBy === 'verified') {
     filteredResults.sort((a, b) => (a.isVerified === b.isVerified ? 0 : a.isVerified ? -1 : 1));
   }
 
+  // Pagination
   const totalPages = Math.ceil(filteredResults.length / RESULTS_PER_PAGE);
   const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
   const paginatedResults = filteredResults.slice(startIndex, startIndex + RESULTS_PER_PAGE);
@@ -152,6 +151,7 @@ function SearchPageInner() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <div className="mb-8">
           {loading ? (
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
@@ -166,6 +166,8 @@ function SearchPageInner() {
           <p className="text-muted-foreground">
             {loading ? 'Loading results...' : `Showing ${filteredResults.length} results`}
           </p>
+
+          {/* Search Again Bar */}
           <div className="mt-4 flex w-full max-w-lg items-center gap-2">
             <input
               type="text"
@@ -192,11 +194,14 @@ function SearchPageInner() {
           </div>
         </div>
 
+        {/* Map Toggle */}
         <div className="mb-6">
           <MapToggle isMapView={isMapView} onToggle={() => setIsMapView(!isMapView)} />
         </div>
 
+        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 bg-card rounded-lg p-6 border">
               <h2 className="text-lg font-bold mb-6">Filters</h2>
@@ -219,6 +224,7 @@ function SearchPageInner() {
             </div>
           </div>
 
+          {/* Results */}
           <div className="lg:col-span-3 space-y-4">
             {loading ? (
               <div className="text-center py-16 text-muted-foreground">
@@ -263,7 +269,6 @@ function SearchPageInner() {
     </div>
   );
 }
-
 export default function SearchPage() {
   return (
     <Suspense fallback={
