@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+
 export function Footer() {
   return (
     <footer className="w-full border-t border-gray-200 bg-white py-12">
@@ -31,7 +32,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/browse" className="text-gray-600 hover:text-[#4A90D9]">
+                <Link href="/states" className="text-gray-600 hover:text-[#4A90D9]">
                   Browse by State
                 </Link>
               </li>
