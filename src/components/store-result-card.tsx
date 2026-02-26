@@ -14,7 +14,7 @@ interface StoreResultCardProps {
   specialties: string[];
   rating: number;
   reviewCount: number;
-  isOpen: boolean;
+  isOpen: boolean | null;
   hours: string;
   description: string;
   isVerified: boolean;
@@ -90,11 +90,13 @@ export function StoreResultCard({
               <span className="text-muted-foreground">({reviewCount} reviews)</span>
             </div>
             <div className="hidden sm:block w-1 h-1 bg-muted-foreground rounded-full" />
-            <div
-              className={`font-medium ${isOpen ? 'text-emerald-600' : 'text-red-600'}`}
-            >
-              {isOpen ? 'Open Now' : 'Closed'}{hours && hours !== 'Hours not listed' ? ` • ${hours}` : ''}
-            </div>
+            {isOpen !== null && (
+              <div
+                className={`font-medium ${isOpen ? 'text-emerald-600' : 'text-red-600'}`}
+              >
+                {isOpen ? 'Open Now' : 'Closed'}{hours ? ` • ${hours}` : ''}
+              </div>
+            )}
           </div>
 
           {/* Description */}
