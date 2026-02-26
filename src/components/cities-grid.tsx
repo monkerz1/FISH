@@ -60,7 +60,8 @@ interface CitiesGridProps {
 export function CitiesGrid({ cities, state }: CitiesGridProps) {
   const [showAll, setShowAll] = useState(false);
   const sortedCities = [...cities].sort((a, b) => b.storeCount - a.storeCount);
-  const visibleCities = showAll ? sortedCities : sortedCities.slice(0, 12);
+  const alphabeticalCities = [...cities].sort((a, b) => a.name.localeCompare(b.name));
+  const visibleCities = showAll ? alphabeticalCities : sortedCities.slice(0, 12);
 
   return (
     <div className="w-full bg-background py-12 md:py-16">
