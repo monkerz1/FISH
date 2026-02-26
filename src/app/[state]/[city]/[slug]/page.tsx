@@ -270,44 +270,6 @@ export default async function StorePage({ params }: StorePageProps) {
             )}
 
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-              <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center text-sm">🕐</span>
-                Hours
-              </h2>
-              {storeHours.length > 0 ? (
-                <div className="space-y-1 text-sm">
-                  {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((day, i) => {
-                    const h = storeHours.find((x: { day_of_week: number }) => x.day_of_week === i)
-                    const isToday = todayDay === i
-                    return (
-                      <div key={day} className={`flex justify-between py-2 px-3 rounded-lg ${isToday ? 'bg-blue-50 font-semibold text-blue-800' : 'text-slate-700'}`}>
-                        <span>{day}</span>
-                        <span>
-                          {h && !h.is_closed && h.open_time && h.close_time
-                            ? `${formatTime(h.open_time)} – ${formatTime(h.close_time)}`
-                            : h?.is_closed ? 'Closed' : 'Call for hours'}
-                        </span>
-                      </div>
-                    )
-                  })}
-                  <p className="text-xs text-slate-400 pt-2 px-1">Times shown in {timezone.replace('_', ' ')}</p>
-                </div>
-              ) : (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <p className="text-sm text-amber-700 font-medium mb-1">Hours not yet listed</p>
-                  <p className="text-xs text-amber-600">
-                    {store.is_claimed ? "The owner hasn't added hours yet." : 'Claim this listing to add your store hours.'}
-                  </p>
-                  {!store.is_claimed && (
-                    <Link href={`/claim/${store.slug}`} className="inline-block mt-2 text-xs font-semibold text-amber-700 hover:underline">
-                      → Claim this listing
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2">
                   <span className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center text-sm">⭐</span>
@@ -345,8 +307,21 @@ export default async function StorePage({ params }: StorePageProps) {
 
           </div>
 
-          <div className="space-y-4">
-
+          <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+              {storeHours.length > 0 && (
+              <div className={`rounded-2xl p-4 shadow-sm border text-center ${isOpenNow ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                <div className={`text-2xl font-bold mb-0.5 ${isOpenNow ? 'text-emerald-700' : 'text-red-700'}`}>
+                  {isOpenNow ? '● Open Now' : '● Closed Now'}
+                </div>
+                {todayHours && !todayHours.is_closed && todayHours.open_time && todayHours.close_time && (
+                  <p className={`text-xs font-medium ${isOpenNow ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {isOpenNow
+                      ? `Closes at ${formatTime(todayHours.close_time)}`
+                      : `Opens at ${formatTime(todayHours.open_time)}`}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">Contact & Location</h3>
               {store.phone && (
@@ -412,7 +387,37 @@ export default async function StorePage({ params }: StorePageProps) {
                 </div>
               </div>
             )}
-
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">🕐 Hours</h3>
+              {storeHours.length > 0 ? (
+                <div className="space-y-0.5 text-sm">
+                  {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day, i) => {
+                    const h = storeHours.find((x: { day_of_week: number }) => x.day_of_week === i)
+                    const isToday = todayDay === i
+                    return (
+                      <div key={day} className={`flex justify-between py-1.5 px-2 rounded-lg text-xs ${isToday ? 'bg-blue-50 font-semibold text-blue-800' : 'text-slate-600'}`}>
+                        <span className="w-8">{day}</span>
+                        <span>
+                          {h && !h.is_closed && h.open_time && h.close_time
+                            ? `${formatTime(h.open_time)} – ${formatTime(h.close_time)}`
+                            : h?.is_closed ? 'Closed' : 'Call'}
+                        </span>
+                      </div>
+                    )
+                  })}
+                  <p className="text-xs text-slate-400 pt-2 px-1">Times in {timezone.replace('_', ' ')}</p>
+                </div>
+              ) : (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <p className="text-xs text-amber-700 font-medium mb-1">Hours not listed</p>
+                  {!store.is_claimed && (
+                    <Link href={`/claim/${store.slug}`} className="text-xs font-semibold text-amber-700 hover:underline">
+                      → Claim to add hours
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
             <StillOpenWidget storeId={store.id} lastVerified={store.last_verified_at || null} />
 
             {!store.is_claimed && (
