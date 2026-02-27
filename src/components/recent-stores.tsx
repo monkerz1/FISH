@@ -9,7 +9,7 @@ async function getRecentStores() {
   const { data, error } = await supabase
     .from('stores')
     .select('id, name, city, state, specialty_tags, rating, slug')
-    .eq('is_active', true)
+    .not('verification_status', 'eq', 'rejected')
     .order('created_at', { ascending: false })
     .limit(4);
 
