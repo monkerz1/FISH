@@ -14,22 +14,22 @@ const FEATURED_CITIES = [
 ];
 
 export async function FeaturedCities() {
-  // Fetch real store counts for each city from Supabase
-  const { data } = await supabase
-    .from('store_locations')
-    .select('city, state')
-    .in('state', ['CA', 'TX', 'FL', 'IL', 'NY', 'AZ', 'WA'])
-    .limit(5000)
+  // Fetch store counts per city using individual count queries
+  const cityQueries = await Promise.all(
+    FEATURED_CITIES.map(async (city) => {
+      const { count } = await supabase
+        .from('store_locations')
+        .select('*', { count: 'exact', head: true })
+        .eq('city', city.name)
+        .eq('state', city.state)
+      return { key: `${city.name}-${city.state}`, count: count || 0 }
+    })
+  )
 
-  // Build a count lookup: "Los Angeles-CA" -> 47
   const countMap: Record<string, number> = {}
-  data?.forEach(row => {
-    if (row.city && row.state) {
-      const key = `${row.city}-${row.state}`
-      countMap[key] = (countMap[key] || 0) + 1
-    }
+  cityQueries.forEach(({ key, count }) => {
+    countMap[key] = count
   })
-  console.log('LA count check:', data?.filter(r => r.city === 'Los Angeles' && r.state === 'CA').length, 'total rows:', data?.length)
   const cities = FEATURED_CITIES.map(city => ({
     ...city,
     citySlug: city.name.toLowerCase().replace(/\s+/g, '-'),
