@@ -68,11 +68,12 @@ export default async function StatePage({ params }: StatePageProps) {
   const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
-  // Fetch cities with store counts
+  // Fetch cities with store counts from store_locations
   const { data: cityData } = await supabase
-    .from('stores')
+    .from('store_locations')
     .select('city')
     .eq('state', stateAbbr)
+    .limit(2000)
 
   // Build city counts
   const cityCounts: Record<string, number> = {}
