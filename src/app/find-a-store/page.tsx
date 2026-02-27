@@ -7,6 +7,7 @@ export default function FindAStorePage() {
   const router = useRouter();
   const [status, setStatus] = useState<'detecting' | 'manual' | 'error'>('detecting');
   const [query, setQuery] = useState('');
+  const [locationFound, setLocationFound] = useState<string | null>(null);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -31,7 +32,9 @@ export default function FindAStorePage() {
           const state = data.address?.state || '';
 
           if (city) {
-            router.replace(`/search?q=${encodeURIComponent(`${city}, ${state}`)}`);
+            const destination = `/search?q=${encodeURIComponent(`${city}, ${state}`)}`;
+            setLocationFound(destination);
+            setTimeout(() => router.replace(destination), 500);
           } else {
             setStatus('manual');
           }
