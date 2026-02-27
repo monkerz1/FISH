@@ -19,6 +19,7 @@ export async function FeaturedCities() {
     .from('store_locations')
     .select('city, state')
     .in('state', ['CA', 'TX', 'FL', 'IL', 'NY', 'AZ', 'WA'])
+    .limit(5000)
 
   // Build a count lookup: "Los Angeles-CA" -> 47
   const countMap: Record<string, number> = {}
