@@ -20,7 +20,13 @@ export function Hero() {
   };
 
   const handleSpecialtyFilter = (specialty: string) => {
-    router.push(`/search?specialty=${encodeURIComponent(specialty)}`);
+    const slugMap: Record<string, string> = {
+      'Saltwater & Reef': 'saltwater',
+      'Freshwater': 'freshwater',
+      'Corals & Plants': 'corals',
+    };
+    const slug = slugMap[specialty] || specialty.toLowerCase();
+    router.push(`/specialty/${slug}`);
   };
 
   return (
