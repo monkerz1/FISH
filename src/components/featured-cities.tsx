@@ -29,7 +29,7 @@ export async function FeaturedCities() {
       countMap[key] = (countMap[key] || 0) + 1
     }
   })
-
+  console.log('LA count check:', data?.filter(r => r.city === 'Los Angeles' && r.state === 'CA').length, 'total rows:', data?.length)
   const cities = FEATURED_CITIES.map(city => ({
     ...city,
     citySlug: city.name.toLowerCase().replace(/\s+/g, '-'),
