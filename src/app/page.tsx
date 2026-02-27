@@ -8,6 +8,7 @@ import { RecentStores } from '@/components/recent-stores';
 import { CTABanner } from '@/components/cta-banner';
 import { Footer } from '@/components/footer';
 
+export const dynamic = 'force-dynamic'
 export default async function Home() {
   const { count: storeCount } = await supabase
     .from('stores')
