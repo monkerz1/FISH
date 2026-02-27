@@ -5,11 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-async function getRecentStores() {d
+async function getRecentStores() {
   const { data, error } = await supabase
     .from('stores')
     .select('id, name, city, state, specialty_tags, rating, slug')
-    .not('verification_status', 'eq', 'rejected')
+    .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(4);
 
