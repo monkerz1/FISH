@@ -16,7 +16,7 @@ const FEATURED_CITIES = [
 export async function FeaturedCities() {
   // Fetch real store counts for each city from Supabase
   const { data } = await supabase
-    .from('stores')
+    .from('store_locations')
     .select('city, state')
     .in('state', ['CA', 'TX', 'FL', 'IL', 'NY', 'AZ', 'WA'])
 
