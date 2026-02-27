@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-async function getRecentStores() {
+async function getRecentStores() {d
   const { data, error } = await supabase
     .from('stores')
     .select('id, name, city, state, specialty_tags, rating, slug')
