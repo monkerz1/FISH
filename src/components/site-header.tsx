@@ -9,7 +9,7 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '/search', label: 'Find a Store' },
+    { href: '/find-a-store', label: 'Find a Store' },
     { href: '/states', label: 'Browse States' },
     { href: '/tools', label: 'Tools' },
     { href: '/add-store', label: 'Add a Store' },
