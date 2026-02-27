@@ -27,7 +27,7 @@ export default function SpecialtyPage() {
     const saved = localStorage.getItem('userLocation');
     if (saved) {
       const { query } = JSON.parse(saved);
-      router.push(`/search?q=${encodeURIComponent(query)}&specialty=${encodeURIComponent(label)}`);
+      router.push(`/search?q=${encodeURIComponent(query)}&specialty=${encodeURIComponent(type)}`);
     }
   }, []);
 
@@ -46,7 +46,7 @@ export default function SpecialtyPage() {
           const city = data.address?.city || data.address?.town || data.address?.village || '';
           const query = zip || city;
           localStorage.setItem('userLocation', JSON.stringify({ query, latitude, longitude }));
-          router.push(`/search?q=${encodeURIComponent(query)}&specialty=${encodeURIComponent(label)}`);
+          router.push(`/search?q=${encodeURIComponent(query)}&specialty=${encodeURIComponent(type)}`);
         } catch {
           setError('Could not determine your location. Please enter your zip code.');
           setLocating(false);
@@ -63,7 +63,7 @@ export default function SpecialtyPage() {
     const trimmed = zip.trim();
     if (!trimmed) return;
     localStorage.setItem('userLocation', JSON.stringify({ query: trimmed }));
-    router.push(`/search?q=${encodeURIComponent(trimmed)}&specialty=${encodeURIComponent(label)}`);
+    router.push(`/search?q=${encodeURIComponent(trimmed)}&specialty=${encodeURIComponent(type)}`);
   };
 
   return (
