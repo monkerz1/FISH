@@ -33,6 +33,7 @@ function SearchPageInner() {
   const [sortBy, setSortBy] = useState('distance');
   const [currentPage, setCurrentPage] = useState(1);
   const [isMapView, setIsMapView] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
 useEffect(() => {
     async function fetchStores() {
@@ -203,7 +204,39 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filters */}
           <div className="lg:col-span-1">
-            <div className="sticky top-20 bg-card rounded-lg p-6 border">
+            {/* Mobile: collapsible filter toggle */}
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                className="flex items-center justify-between w-full bg-card border rounded-lg px-4 py-3 text-sm font-semibold"
+              >
+                <span>🎛️ Filters {selectedSpecialties.length + selectedServices.length + selectedSupplies.length > 0 ? `(${selectedSpecialties.length + selectedServices.length + selectedSupplies.length} active)` : ''}</span>
+                <span className={`transition-transform duration-200 ${filtersOpen ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {filtersOpen && (
+                <div className="mt-2 bg-card rounded-lg p-4 border">
+                  <SearchFilters
+                    maxDistance={maxDistance}
+                    onDistanceChange={setMaxDistance}
+                    selectedSpecialties={selectedSpecialties}
+                    onSpecialtiesChange={setSelectedSpecialties}
+                    selectedServices={selectedServices}
+                    onServicesChange={setSelectedServices}
+                    selectedSupplies={selectedSupplies}
+                    onSuppliesChange={setSelectedSupplies}
+                    showChains={showChains}
+                    onShowChainsChange={setShowChains}
+                    openNow={openNow}
+                    onOpenNowChange={setOpenNow}
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Desktop: always visible sticky sidebar */}
+            <div className="hidden lg:block sticky top-20 bg-card rounded-lg p-6 border">
               <h2 className="text-lg font-bold mb-6">Filters</h2>
               <SearchFilters
                 maxDistance={maxDistance}
