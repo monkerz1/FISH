@@ -36,11 +36,11 @@ const SPECIALTIES = [
   { label: 'Corals & SPS/LPS', value: 'corals' },
   { label: 'Freshwater Fish', value: 'freshwater' },
   { label: 'Cichlids', value: 'cichlids' },
-  { label: 'Live Plants', value: 'planted' },
+  { label: 'Live Plants', value: 'live plants' },
   { label: 'Invertebrates', value: 'invertebrates' },
   { label: 'Koi & Pond', value: 'koi' },
   { label: 'Goldfish', value: 'goldfish' },
-  { label: 'Rare Species', value: 'rare' },
+  { label: 'Rare Species', value: 'rare species' },
 ];
 
 const SERVICES = [
