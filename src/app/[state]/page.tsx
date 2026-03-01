@@ -40,6 +40,8 @@ const STATE_NAMES: Record<string, string> = {
   'WI': 'Wisconsin', 'WY': 'Wyoming'
 }
 
+export const revalidate = 86400
+
 export async function generateStaticParams() {
   return Object.keys(STATE_ABBR).map((state) => ({ state }))
 }
@@ -70,10 +72,9 @@ export default async function StatePage({ params }: StatePageProps) {
 
   // Fetch cities with store counts from store_locations
   const { data: cityData } = await supabase
-    .from('stores')
+    .from('store_locations')
     .select('city')
     .eq('state', stateAbbr)
-    .eq('is_reviewed', true)
     .limit(2000)
 
   // Build city counts
