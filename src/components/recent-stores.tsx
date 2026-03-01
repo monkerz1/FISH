@@ -2,42 +2,51 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
+import { Star, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-async function getRecentStores() {
+async function getSpotlightStores() {
+  const today = new Date().toISOString().split('T')[0];
+
   const { data, error } = await supabase
     .from('stores')
     .select('id, name, city, state, specialty_tags, rating, slug')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
+    .eq('is_featured', true)
+    .or(`featured_until.is.null,featured_until.gte.${today}`)
     .limit(4);
 
   if (error) {
-    console.error('Error fetching recent stores:', error);
+    console.error('Error fetching spotlight stores:', error);
     return [];
   }
   return data || [];
 }
 
 export async function RecentStores() {
-  const stores = await getRecentStores();
+  const stores = await getSpotlightStores();
+
+  if (stores.length === 0) return null;
 
   return (
     <section className="w-full bg-white py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-12 text-center">
-          <h2 className="mb-3 text-4xl font-bold text-gray-900">Recently Verified Stores</h2>
-          <p className="text-lg text-gray-600">Check out some of our highly-rated local fish shops</p>
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Sparkles className="h-7 w-7 text-yellow-400 fill-yellow-400" />
+            <h2 className="text-4xl font-bold text-gray-900">Spotlight Stores</h2>
+            <Sparkles className="h-7 w-7 text-yellow-400 fill-yellow-400" />
+          </div>
+          <p className="text-lg text-gray-600">Hand-picked local fish stores worth checking out</p>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {stores.map((store) => (
-            <Card key={store.id} className="flex flex-col gap-4 bg-white p-6 transition-all hover:shadow-lg">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">{store.name}</h3>
-                <p className="text-sm text-gray-600">
-                  {store.city}, {store.state}
-                </p>
+            <Card key={store.id} className="flex flex-col gap-4 bg-white p-6 transition-all hover:shadow-lg border-yellow-200 border-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{store.name}</h3>
+                  <p className="text-sm text-gray-600">{store.city}, {store.state}</p>
+                </div>
+                <span className="text-yellow-400 text-lg">⭐</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {(store.specialty_tags || []).slice(0, 3).map((specialty: string, idx: number) => (
