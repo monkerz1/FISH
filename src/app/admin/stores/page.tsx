@@ -50,6 +50,9 @@ export default function AllStores() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [filterReviewed, setFilterReviewed] = useState<'all' | 'reviewed' | 'not_reviewed'>('all');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [massDeleteConfirm, setMassDeleteConfirm] = useState(false);
+  const [massDeleting, setMassDeleting] = useState(false);
   const router = useRouter();
 
   const supabase = createBrowserClient(
@@ -85,6 +88,7 @@ export default function AllStores() {
 
     const { data } = await query;
     setStores(data || []);
+    setSelected(new Set());
     setLoading(false);
   };
 
@@ -156,7 +160,34 @@ export default function AllStores() {
   const handleDelete = async (id: string) => {
     await supabase.from('stores').delete().eq('id', id);
     setStores(prev => prev.filter(s => s.id !== id));
+    setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
     setDeleteConfirm(null);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === stores.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(stores.map(s => s.id)));
+    }
+  };
+
+  const handleMassDelete = async () => {
+    setMassDeleting(true);
+    const ids = Array.from(selected);
+    await supabase.from('stores').delete().in('id', ids);
+    setStores(prev => prev.filter(s => !selected.has(s.id)));
+    setSelected(new Set());
+    setMassDeleteConfirm(false);
+    setMassDeleting(false);
   };
 
   const thClass = "text-left p-3 font-semibold text-slate-600 cursor-pointer select-none hover:text-slate-900 whitespace-nowrap";
@@ -202,11 +233,42 @@ export default function AllStores() {
 
           {loading && <p className="text-slate-500 mb-4">Loading...</p>}
 
+          {/* Mass Delete Toolbar */}
+          {selected.size > 0 && (
+            <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4">
+              <span className="text-sm font-semibold text-red-700">
+                {selected.size} store{selected.size > 1 ? 's' : ''} selected
+              </span>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSelected(new Set())}
+                  className="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50"
+                >
+                  Clear Selection
+                </button>
+                <button
+                  onClick={() => setMassDeleteConfirm(true)}
+                  className="flex items-center gap-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded transition-colors"
+                >
+                  <Trash2 size={14} /> Delete {selected.size} Store{selected.size > 1 ? 's' : ''}
+                </button>
+              </div>
+            </div>
+          )}
+
           <Card className="overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
+                    <th className="p-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={stores.length > 0 && selected.size === stores.length}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                      />
+                    </th>
                     <th className={thClass} onClick={() => handleSort('name')}>
                       <span className="flex items-center gap-1">Store Name <SortIcon field="name" /></span>
                     </th>
@@ -229,7 +291,15 @@ export default function AllStores() {
                 </thead>
                 <tbody>
                   {stores.map((store, i) => (
-                    <tr key={store.id} className={`border-b border-slate-100 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-blue-50 transition-colors`}>
+                    <tr key={store.id} className={`border-b border-slate-100 ${selected.has(store.id) ? 'bg-red-50' : i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-blue-50 transition-colors`}>
+                      <td className="p-3">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(store.id)}
+                          onChange={() => toggleSelect(store.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                        />
+                      </td>
                       <td className="p-3 font-medium text-slate-900 max-w-[200px] truncate">{store.name}</td>
                       <td className="p-3 text-slate-600 whitespace-nowrap">{store.city}</td>
                       <td className="p-3 text-slate-600">{store.state}</td>
@@ -533,6 +603,35 @@ export default function AllStores() {
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 font-semibold"
               >
                 Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Mass Delete Confirm Modal */}
+      {massDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertTriangle size={24} className="text-red-500" />
+              <h3 className="text-lg font-bold text-slate-900">Delete {selected.size} Stores?</h3>
+            </div>
+            <p className="text-slate-600 mb-6 text-sm">
+              You are about to permanently delete <strong>{selected.size} stores</strong>. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setMassDeleteConfirm(false)}
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMassDelete}
+                disabled={massDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 font-semibold disabled:opacity-50"
+              >
+                {massDeleting ? 'Deleting...' : `Yes, Delete ${selected.size}`}
               </button>
             </div>
           </div>
