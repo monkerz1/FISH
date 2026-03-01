@@ -89,10 +89,12 @@ export default function ContactPage() {
               <p className="text-sm text-blue-700 mb-3">
                 Claim your free listing to update your info, add photos, and respond to reviews.
               </p>
-              
+              <a
                 href="/claim"
                 className="block text-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-              >Claim Your Listing</a>
+              >
+                Claim Your Listing
+              </a>
             </div>
           </div>
 
