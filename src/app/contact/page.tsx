@@ -27,7 +27,7 @@ export default function ContactPage() {
     // Get captcha token
     const captchaToken = window.grecaptcha?.getResponse()
     if (!captchaToken) {
-      setStatus('error')
+      setStatus('idle')
       setErrorMsg('Please complete the reCAPTCHA checkbox.')
       return
     }
@@ -181,7 +181,7 @@ export default function ContactPage() {
                 {/* reCAPTCHA */}
                 <div
                   className="g-recaptcha"
-                  data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                  data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                 />
 
                 {status === 'error' && (
