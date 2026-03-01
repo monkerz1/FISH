@@ -29,6 +29,7 @@ type Store = {
   description: string;
   specialty_tags: string[];
   services: string[];
+  supplies_tags: string[];
   store_type: string;
   email: string;
   is_reviewed: boolean;
@@ -76,7 +77,7 @@ export default function AllStores() {
     setLoading(true);
     let query = supabase
       .from('stores')
-      .select('id, name, city, state, phone, website, address, zip, email, is_claimed, verification_status, rating, review_count, description, specialty_tags, services, store_type, is_reviewed, created_at')
+      .select('id, name, city, state, phone, website, address, zip, email, is_claimed, verification_status, rating, review_count, description, specialty_tags, services, supplies_tags, store_type, is_reviewed, created_at')
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (search) query = query.ilike('name', `%${search}%`);
@@ -139,6 +140,9 @@ export default function AllStores() {
         is_claimed: editForm.is_claimed,
         is_reviewed: editForm.is_reviewed,
         rating: editForm.rating,
+        specialty_tags: editForm.specialty_tags,
+        services: editForm.services,
+        supplies_tags: editForm.supplies_tags,
       })
       .eq('id', editStore.id);
 
@@ -552,6 +556,105 @@ export default function AllStores() {
                     onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
                   />
                 </div>
+
+                {/* Chain Store Toggle */}
+                <div className="col-span-2">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div>
+                      <p className="font-semibold text-slate-700 text-sm">Chain Store</p>
+                      <p className="text-xs text-slate-500">Petco, PetSmart, Walmart, etc.</p>
+                    </div>
+                    <button
+                      onClick={() => setEditForm(f => ({ ...f, store_type: f.store_type === 'chain' ? 'independent' : 'chain' }))}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                        editForm.store_type === 'chain'
+                          ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      }`}
+                    >
+                      {editForm.store_type === 'chain' ? '🏪 Chain Store' : '🐠 Independent'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Specialty Tags */}
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-slate-600 mb-2">Specialty Tags</label>
+                  <div className="grid grid-cols-2 gap-2 p-3 border border-slate-200 rounded-lg bg-slate-50">
+                    {['saltwater','reef','corals','freshwater','cichlids','live plants','invertebrates','koi & pond','goldfish','rare species'].map(tag => {
+                      const checked = (editForm.specialty_tags || []).includes(tag);
+                      return (
+                        <label key={tag} className="flex items-center gap-2 cursor-pointer hover:text-blue-600">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setEditForm(f => ({
+                              ...f,
+                              specialty_tags: checked
+                                ? (f.specialty_tags || []).filter(t => t !== tag)
+                                : [...(f.specialty_tags || []), tag]
+                            }))}
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                          />
+                          <span className="text-sm text-slate-700 capitalize">{tag}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Services */}
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-slate-600 mb-2">Services</label>
+                  <div className="grid grid-cols-2 gap-2 p-3 border border-slate-200 rounded-lg bg-slate-50">
+                    {['water testing','custom tanks','delivery','aquarium maintenance','installation','aquarium design','coral fragging','fish boarding'].map(tag => {
+                      const checked = (editForm.services || []).includes(tag);
+                      return (
+                        <label key={tag} className="flex items-center gap-2 cursor-pointer hover:text-blue-600">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setEditForm(f => ({
+                              ...f,
+                              services: checked
+                                ? (f.services || []).filter(t => t !== tag)
+                                : [...(f.services || []), tag]
+                            }))}
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                          />
+                          <span className="text-sm text-slate-700 capitalize">{tag}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Supplies */}
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-slate-600 mb-2">Supplies</label>
+                  <div className="grid grid-cols-2 gap-2 p-3 border border-slate-200 rounded-lg bg-slate-50">
+                    {['live rock','live sand','frozen food','live food','dry food','ro water','salt mix','reef supplements','lighting','filtration','ro unit','driftwood','medications','co2 systems','aquarium decor'].map(tag => {
+                      const checked = (editForm.supplies_tags || []).includes(tag);
+                      return (
+                        <label key={tag} className="flex items-center gap-2 cursor-pointer hover:text-blue-600">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setEditForm(f => ({
+                              ...f,
+                              supplies_tags: checked
+                                ? (f.supplies_tags || []).filter(t => t !== tag)
+                                : [...(f.supplies_tags || []), tag]
+                            }))}
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                          />
+                          <span className="text-sm text-slate-700 capitalize">{tag}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
             </div>
 
