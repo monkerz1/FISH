@@ -40,7 +40,7 @@ const STATE_NAMES: Record<string, string> = {
   'WI': 'Wisconsin', 'WY': 'Wyoming'
 }
 
-export const revalidate = 86400
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   return Object.keys(STATE_ABBR).map((state) => ({ state }))
@@ -70,11 +70,12 @@ export default async function StatePage({ params }: StatePageProps) {
   const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
-  // Fetch cities with store counts from store_locations
+// Fetch cities with store counts — only reviewed stores
   const { data: cityData } = await supabase
-    .from('store_locations')
+    .from('stores')
     .select('city')
     .eq('state', stateAbbr)
+    .eq('is_reviewed', true)
     .limit(2000)
 
   // Build city counts
