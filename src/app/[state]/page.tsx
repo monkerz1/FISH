@@ -70,9 +70,10 @@ export default async function StatePage({ params }: StatePageProps) {
 
   // Fetch cities with store counts from store_locations
   const { data: cityData } = await supabase
-    .from('store_locations')
+    .from('stores')
     .select('city')
     .eq('state', stateAbbr)
+    .eq('is_reviewed', true)
     .limit(2000)
 
   // Build city counts
@@ -99,6 +100,7 @@ export default async function StatePage({ params }: StatePageProps) {
     .from('stores')
     .select('id, name, city, state, rating, review_count, specialty_tags, description, slug, is_verified')
     .eq('state', stateAbbr)
+    .eq('is_reviewed', true)
     .order('rating', { ascending: false })
     .limit(6)
 

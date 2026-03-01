@@ -31,6 +31,7 @@ export default async function CityPage({ params }: CityPageProps) {
     .select('id, name, city, state, slug, rating, review_count, specialty_tags, phone, website, address, description')
     .eq('state', stateAbbr)
     .ilike('city', cityName)
+    .eq('is_reviewed', true)
     .order('rating', { ascending: false })
 
   const storeList = stores || []

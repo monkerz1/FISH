@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
 
     const filtered = (data || []).filter((store: any) => {
       const nameLower = store.name.toLowerCase()
-      return !CHAIN_BLOCKLIST.some(chain => nameLower.includes(chain))
+      const isChain = CHAIN_BLOCKLIST.some(chain => nameLower.includes(chain))
+      return !isChain && store.is_reviewed === true
     })
 
     return NextResponse.json({
