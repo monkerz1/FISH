@@ -13,6 +13,7 @@ export default async function Home() {
   const { count: storeCount } = await supabase
     .from('stores')
     .select('*', { count: 'exact', head: true })
+    .eq('is_reviewed', true)
 
   return (
     <main className="w-full">

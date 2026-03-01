@@ -18,10 +18,11 @@ export async function FeaturedCities() {
   const cityQueries = await Promise.all(
     FEATURED_CITIES.map(async (city) => {
       const { count } = await supabase
-        .from('store_locations')
+        .from('stores')
         .select('*', { count: 'exact', head: true })
         .eq('city', city.name)
         .eq('state', city.state)
+        .eq('is_reviewed', true)
       return { key: `${city.name}-${city.state}`, count: count || 0 }
     })
   )
