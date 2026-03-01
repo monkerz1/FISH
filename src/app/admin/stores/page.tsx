@@ -33,6 +33,8 @@ type Store = {
   store_type: string;
   email: string;
   is_reviewed: boolean;
+  is_featured: boolean;
+  featured_until: string | null;
   created_at: string;
 };
 
@@ -77,7 +79,7 @@ export default function AllStores() {
     setLoading(true);
     let query = supabase
       .from('stores')
-      .select('id, name, city, state, phone, website, address, zip, email, is_claimed, verification_status, rating, review_count, description, specialty_tags, services, supplies_tags, store_type, is_reviewed, created_at')
+      .select('id, name, city, state, phone, website, address, zip, email, is_claimed, verification_status, rating, review_count, description, specialty_tags, services, supplies_tags, store_type, is_reviewed, is_featured, featured_until, created_at')
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (search) query = query.ilike('name', `%${search}%`);
@@ -143,6 +145,8 @@ export default function AllStores() {
         specialty_tags: editForm.specialty_tags,
         services: editForm.services,
         supplies_tags: editForm.supplies_tags,
+        is_featured: editForm.is_featured,
+        featured_until: editForm.featured_until || null,
       })
       .eq('id', editStore.id);
 
@@ -427,6 +431,39 @@ export default function AllStores() {
                   {editForm.is_reviewed ? '✅ Reviewed' : '🔴 Not Reviewed'}
                 </button>
               </div>
+
+              {/* Featured Toggle */}
+              <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div>
+                  <p className="font-semibold text-slate-700">⭐ Homepage Featured</p>
+                  <p className="text-xs text-slate-500">Show this store in the Featured section on the homepage</p>
+                </div>
+                <button
+                  onClick={() => setEditForm(f => ({ ...f, is_featured: !f.is_featured }))}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                    editForm.is_featured
+                      ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500'
+                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  }`}
+                >
+                  {editForm.is_featured ? '⭐ Featured' : 'Not Featured'}
+                </button>
+              </div>
+
+              {/* Featured Until Date (only show if featured) */}
+              {editForm.is_featured && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Featured Until <span className="text-slate-400 font-normal">(optional — leave blank for manual control)</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    value={editForm.featured_until || ''}
+                    onChange={e => setEditForm(f => ({ ...f, featured_until: e.target.value || null }))}
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
