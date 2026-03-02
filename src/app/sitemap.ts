@@ -17,9 +17,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
-    { url: baseUrl, priority: 1.0, changeFrequency: 'daily' },
-    { url: `${baseUrl}/add-store`, priority: 0.5, changeFrequency: 'monthly' },
-    { url: `${baseUrl}/tools`, priority: 0.6, changeFrequency: 'monthly' },
+    { url: baseUrl, priority: 1.0, changeFrequency: 'daily', lastModified: new Date() },
+    { url: `${baseUrl}/add-store`, priority: 0.5, changeFrequency: 'monthly', lastModified: new Date() },
+    { url: `${baseUrl}/tools`, priority: 0.6, changeFrequency: 'monthly', lastModified: new Date() },
   ]
 
   // State pages
@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/${state}`,
     priority: 0.8,
     changeFrequency: 'weekly' as const,
+    lastModified: new Date(),
   }))
 
   // All store pages
@@ -34,7 +35,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from('stores')
     .select('slug, city, state, updated_at')
     .not('slug', 'is', null)
-    .limit(5000)
+    .eq('is_active', true)
+    .limit(10000)
 
   const STATE_ABBR_TO_SLUG: Record<string, string> = {
     'AL':'alabama','AK':'alaska','AZ':'arizona','AR':'arkansas','CA':'california',
