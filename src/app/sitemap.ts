@@ -42,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .not('slug', 'is', null)
     .eq('is_active', true)
     .limit(10000)
+  if (error) console.error('Sitemap store fetch error:', error)
 
   const STATE_ABBR_TO_SLUG: Record<string, string> = {
     'AL':'alabama','AK':'alaska','AZ':'arizona','AR':'arkansas','CA':'california',
