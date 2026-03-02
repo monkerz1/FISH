@@ -42,11 +42,7 @@ export function Footer() {
           <div>
             <h4 className="mb-4 font-semibold text-gray-900">Contact</h4>
             <ul className="space-y-2">
-              <li>
-                <Link href="mailto:contact@lfsdirectory.com" className="text-gray-600 hover:text-[#4A90D9]">
-                  contact@lfsdirectory.com
-                </Link>
-              </li>
+
               <li>
                 <Link href="/contact" className="text-gray-600 hover:text-[#4A90D9]">
                   Contact Form
