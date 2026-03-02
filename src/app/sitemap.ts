@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { MetadataRoute } from 'next'
 
 const STATE_SLUGS = [
@@ -31,7 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   // All store pages
-  const { data: stores } = await supabase
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  const { data: stores, error } = await supabase
     .from('stores')
     .select('slug, city, state, updated_at')
     .not('slug', 'is', null)
