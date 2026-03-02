@@ -40,12 +40,12 @@ export function TankVolumeCalculator() {
   const volumeLiters = volumeGallons * 3.78541;
 
   return (
-    <Card className="overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
       <div className="px-5 py-3 font-semibold text-white text-sm tracking-wide flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600">
         <span>🐠</span> Tank Volume Calculator
         <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
       </div>
-      <CardContent className="pt-6">
+      <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="space-y-4">
           <div>
             <Label htmlFor="shape">Tank Shape</Label>
@@ -110,7 +110,7 @@ export function TankVolumeCalculator() {
             </Button>
           </Link>
         </div>
-      </CardContent>
-    </Card>
+     </div>
+    </div>
   );
 }

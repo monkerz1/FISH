@@ -47,12 +47,12 @@ export function SalinityConverter() {
   }
 
   return (
-    <Card className="overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
       <div className="px-5 py-3 font-semibold text-white text-sm tracking-wide flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600">
         <span>🌊</span> Salinity / Specific Gravity Converter
         <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
       </div>
-      <CardContent className="pt-6">
+      <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="space-y-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
@@ -109,7 +109,7 @@ export function SalinityConverter() {
             </Button>
           </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
