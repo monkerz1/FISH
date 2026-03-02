@@ -24,7 +24,10 @@ export function WaterChangeCalculator() {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white">
-        <CardTitle>Water Change Calculator</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Water Change Calculator
+          <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4">

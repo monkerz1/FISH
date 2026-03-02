@@ -49,7 +49,10 @@ export function SalinityConverter() {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
-        <CardTitle>Salinity / Specific Gravity Converter</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Salinity / Specific Gravity Converter
+          <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4">
