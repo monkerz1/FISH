@@ -27,11 +27,11 @@ export function HeaterSizeCalculator() {
   }
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-        <CardTitle>Aquarium Heater Size Calculator</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
+      <div className="px-5 py-3 font-semibold text-white text-sm tracking-wide flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600">
+        <span>🌡️</span> Aquarium Heater Size Calculator
+      </div>
+      <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="space-y-4">
           <div>
             <Label htmlFor="volume">Tank Volume (gallons)</Label>
@@ -83,7 +83,7 @@ export function HeaterSizeCalculator() {
             </Button>
           </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

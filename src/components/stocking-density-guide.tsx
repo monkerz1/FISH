@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -53,11 +52,11 @@ export function StockingDensityGuide() {
   const guide = guides[fishType];
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-        <CardTitle>Stocking Density Guide</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
+      <div className="px-5 py-3 font-semibold text-white text-sm tracking-wide flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600">
+        <span>🐟</span> Stocking Density Guide
+      </div>
+      <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="space-y-4">
           <div>
             <Label htmlFor="tanksize">Tank Size (gallons)</Label>
@@ -108,7 +107,7 @@ export function StockingDensityGuide() {
             </Button>
           </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
