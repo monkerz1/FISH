@@ -38,7 +38,7 @@ type Store = {
   created_at: string;
 };
 
-type SortField = 'name' | 'city' | 'state' | 'rating' | 'is_reviewed' | 'created_at';
+type SortField = 'name' | 'city' | 'state' | 'rating' | 'is_reviewed' | 'created_at' | 'website';
 type SortDir = 'asc' | 'desc';
 
 export default function AllStores() {
@@ -53,6 +53,7 @@ export default function AllStores() {
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [filterReviewed, setFilterReviewed] = useState<'all' | 'reviewed' | 'not_reviewed'>('all');
+  const [filterWebsite, setFilterWebsite] = useState<'all' | 'has_website' | 'no_website'>('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [massDeleteConfirm, setMassDeleteConfirm] = useState(false);
   const [massDeleting, setMassDeleting] = useState(false);
@@ -73,7 +74,7 @@ export default function AllStores() {
       fetchStores();
     };
     init();
-  }, [page, search, sortField, sortDir, filterReviewed]);
+  }, [page, search, sortField, sortDir, filterReviewed, filterWebsite]);
 
   const fetchStores = async () => {
     setLoading(true);
@@ -83,8 +84,8 @@ export default function AllStores() {
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (search) query = query.ilike('name', `%${search}%`);
-    if (filterReviewed === 'reviewed') query = query.eq('is_reviewed', true);
-    if (filterReviewed === 'not_reviewed') query = query.or('is_reviewed.eq.false,is_reviewed.is.null');
+    if (filterWebsite === 'has_website') query = query.not('website', 'is', null).neq('website', '');
+    if (filterWebsite === 'no_website') query = query.or('website.is.null,website.eq.');
 
     // Sort
     query = query.order(sortField, { ascending: sortDir === 'asc' });
@@ -220,6 +221,22 @@ export default function AllStores() {
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </div>
+            {/* Website Filter */}
+            <div className="flex gap-2">
+              {(['all', 'has_website', 'no_website'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => { setFilterWebsite(f); setPage(0); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    filterWebsite === f
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
+                  }`}
+                >
+                  {f === 'all' ? 'All' : f === 'has_website' ? '🌐 Has Website' : '❌ No Website'}
+                </button>
+              ))}
+            </div>
 
             {/* Reviewed Filter */}
             <div className="flex gap-2">
@@ -289,7 +306,9 @@ export default function AllStores() {
                     <th className={thClass} onClick={() => handleSort('rating')}>
                       <span className="flex items-center gap-1">Rating <SortIcon field="rating" /></span>
                     </th>
-                    <th className="text-left p-3 font-semibold text-slate-600 whitespace-nowrap">Website</th>
+                    <th className={thClass} onClick={() => handleSort('website')}>
+                      <span className="flex items-center gap-1">Website <SortIcon field="website" /></span>
+                    </th>
                     <th className="text-left p-3 font-semibold text-slate-600 whitespace-nowrap">Status</th>
                     <th className={thClass} onClick={() => handleSort('is_reviewed')}>
                       <span className="flex items-center gap-1">Reviewed <SortIcon field="is_reviewed" /></span>
