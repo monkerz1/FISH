@@ -57,7 +57,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
-          <p>&copy; 2024 LFSDirectory.com. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} LFSDirectory.com. All rights reserved.</p>
         </div>
       </div>
     </footer>
