@@ -40,7 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from('stores')
     .select('slug, city, state, updated_at')
     .not('slug', 'is', null)
-    .eq('is_active', true)
+    .not('city', 'is', null)
+    .not('state', 'is', null)
+    .eq('is_reviewed', true)
+    .not('verification_status', 'in', '("chain_store","rejected")')
     .limit(10000)
   if (error) console.error('Sitemap store fetch error:', error)
 
