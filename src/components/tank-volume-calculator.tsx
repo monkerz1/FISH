@@ -41,12 +41,10 @@ export function TankVolumeCalculator() {
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-        <CardTitle className="flex items-center gap-2">
-          Tank Volume Calculator
-          <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
-        </CardTitle>
-      </CardHeader>
+      <div className="px-5 py-3 font-semibold text-white text-sm tracking-wide flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600">
+        <span>🐠</span> Tank Volume Calculator
+        <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">Popular</span>
+      </div>
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div>
