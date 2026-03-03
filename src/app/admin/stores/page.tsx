@@ -84,6 +84,12 @@ export default function AllStores() {
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (search) query = query.ilike('name', `%${search}%`);
+
+    if (filterReviewed === 'reviewed') query = query.eq('is_reviewed', true);
+    if (filterReviewed === 'not_reviewed') {
+      query = query.eq('is_reviewed', false);
+    }
+
     if (filterWebsite === 'has_website') query = query.not('website', 'is', null).neq('website', '');
     if (filterWebsite === 'no_website') query = query.or('website.is.null,website.eq.');
 
