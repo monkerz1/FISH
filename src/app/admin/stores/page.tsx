@@ -57,6 +57,8 @@ export default function AllStores() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [massDeleteConfirm, setMassDeleteConfirm] = useState(false);
   const [massDeleting, setMassDeleting] = useState(false);
+  const [storeHours, setStoreHours] = useState<Record<number, { open_time: string; close_time: string; is_closed: boolean }>>({});
+  const [hoursSaving, setHoursSaving] = useState(false);
   const router = useRouter();
 
   const supabase = createBrowserClient(
@@ -119,9 +121,33 @@ export default function AllStores() {
       : <ChevronDown size={14} className="text-blue-500" />;
   };
 
-  const openEdit = (store: Store) => {
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const openEdit = async (store: Store) => {
     setEditStore(store);
     setEditForm({ ...store });
+
+    // Fetch hours for this store
+    const defaultHours: Record<number, { open_time: string; close_time: string; is_closed: boolean }> = {};
+    for (let i = 0; i < 7; i++) {
+      defaultHours[i] = { open_time: '09:00', close_time: '18:00', is_closed: false };
+    }
+
+    const { data: hours } = await supabase
+      .from('store_hours')
+      .select('day_of_week, open_time, close_time, is_closed')
+      .eq('store_id', store.id);
+
+    if (hours && hours.length > 0) {
+      hours.forEach(h => {
+        defaultHours[h.day_of_week] = {
+          open_time: h.open_time?.slice(0, 5) || '09:00',
+          close_time: h.close_time?.slice(0, 5) || '18:00',
+          is_closed: h.is_closed || false,
+        };
+      });
+    }
+    setStoreHours(defaultHours);
   };
 
   const closeEdit = () => {
@@ -158,6 +184,17 @@ export default function AllStores() {
       .eq('id', editStore.id);
 
     if (!error) {
+      // Save hours
+      await supabase.from('store_hours').delete().eq('store_id', editStore.id);
+      const hoursRows = Object.entries(storeHours).map(([day, h]) => ({
+        store_id: editStore.id,
+        day_of_week: parseInt(day),
+        open_time: h.is_closed ? null : `${h.open_time}:00`,
+        close_time: h.is_closed ? null : `${h.close_time}:00`,
+        is_closed: h.is_closed,
+      }));
+      await supabase.from('store_hours').insert(hoursRows);
+
       setStores(prev => prev.map(s => s.id === editStore.id ? { ...s, ...editForm } as Store : s));
       closeEdit();
     } else {
@@ -719,7 +756,54 @@ export default function AllStores() {
 
               </div>
             </div>
-
+{/* Store Hours */}
+              <div className="col-span-2">
+                <label className="block text-xs font-semibold text-slate-600 mb-2">Store Hours</label>
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  {DAY_NAMES.map((day, i) => (
+                    <div key={i} className={`flex items-center gap-3 px-4 py-2.5 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} border-b border-slate-100 last:border-0`}>
+                      <span className="text-sm font-medium text-slate-700 w-24 shrink-0">{day}</span>
+                      <label className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={storeHours[i]?.is_closed || false}
+                          onChange={e => setStoreHours(prev => ({
+                            ...prev,
+                            [i]: { ...prev[i], is_closed: e.target.checked }
+                          }))}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-red-500 cursor-pointer"
+                        />
+                        Closed
+                      </label>
+                      {!storeHours[i]?.is_closed ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <input
+                            type="time"
+                            value={storeHours[i]?.open_time || '09:00'}
+                            onChange={e => setStoreHours(prev => ({
+                              ...prev,
+                              [i]: { ...prev[i], open_time: e.target.value }
+                            }))}
+                            className="border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                          <span className="text-slate-400 text-xs">to</span>
+                          <input
+                            type="time"
+                            value={storeHours[i]?.close_time || '18:00'}
+                            onChange={e => setStoreHours(prev => ({
+                              ...prev,
+                              [i]: { ...prev[i], close_time: e.target.value }
+                            }))}
+                            className="border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-xs text-red-400 italic">Closed all day</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             {/* Modal Footer */}
             <div className="flex items-center justify-between p-6 border-t border-slate-200 sticky bottom-0 bg-white">
               <button
