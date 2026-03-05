@@ -127,7 +127,19 @@ setLoading(false)
                 Edit
               </button>
             </div>
-
+            {/* Services & Supplies */}
+<div className="py-4 flex items-center justify-between">
+  <div>
+    <p className="font-medium text-gray-800">Services & Supplies</p>
+    <p className="text-sm text-gray-500 mt-0.5">What services and products does your store offer?</p>
+  </div>
+  <button
+    onClick={() => router.push(`/store-owner/edit/${store.id}?section=services`)}
+    className="ml-4 px-4 py-2 bg-[#4A90D9] text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+  >
+    Edit
+  </button>
+</div>
             {/* Hours */}
             <div className="py-4 flex items-center justify-between">
               <div>
