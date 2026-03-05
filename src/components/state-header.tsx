@@ -17,7 +17,7 @@ export function StateHeader({ state, storeCount, cityCount }: StateHeaderProps) 
             Home
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <Link href="/browse" className="text-muted-foreground hover:text-primary">
+          <Link href="/states" className="text-muted-foreground hover:text-primary">
             Browse by State
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
