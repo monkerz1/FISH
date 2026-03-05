@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 
 export default function ClaimListingPage() {
@@ -17,10 +17,13 @@ export default function ClaimListingPage() {
     notes: '',
   })
 
-  const storeName = storeSlug
-    .split('-')
-    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+  const [storeName, setStoreName] = useState('')
+
+useEffect(() => {
+  fetch(`/api/stores/by-slug?slug=${storeSlug}`)
+    .then(r => r.json())
+    .then(d => { if (d.name) setStoreName(d.name) })
+}, [storeSlug])
 
   async function handleSubmit(e: React.MouseEvent) {
     e.preventDefault()

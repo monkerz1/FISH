@@ -26,5 +26,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_SITE_URL}/?claim=invalid`)
   }
 
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_SITE_URL}/?claim=verified`)
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_SITE_URL}/claim/verified`)
 }
