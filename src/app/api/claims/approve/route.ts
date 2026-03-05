@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       type: 'magiclink',
       email: claimantEmail,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/store-owner/dashboard`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/store-owner/dashboard`,
       },
     })
 

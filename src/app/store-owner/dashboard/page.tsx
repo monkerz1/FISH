@@ -16,25 +16,38 @@ export default function OwnerDashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/store-owner/login')
-        return
-      }
+      // Wait for session to hydrate from the magic link
+const { data: { session } } = await supabase.auth.getSession()
 
-      const { data: storeData } = await supabase
-        .from('stores')
-        .select('id, name, city, state, description, specialty_tags, is_claimed, verification_status')
-        .eq('owner_user_id', user.id)
-        .single()
+if (!session) {
+  // Give it one more second for the magic link token to process
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  const { data: { session: retrySession } } = await supabase.auth.getSession()
+  if (!retrySession) {
+    router.push('/store-owner/login')
+    return
+  }
+}
 
-      if (!storeData) {
-        router.push('/store-owner/no-store')
-        return
-      }
+const { data: { user } } = await supabase.auth.getUser()
+if (!user) {
+  router.push('/store-owner/login')
+  return
+}
 
-      setStore(storeData)
-      setLoading(false)
+const { data: storeData } = await supabase
+  .from('stores')
+  .select('id, name, city, state, description, specialty_tags, is_claimed, verification_status')
+  .eq('owner_user_id', user.id)
+  .single()
+
+if (!storeData) {
+  router.push('/store-owner/no-store')
+  return
+}
+
+setStore(storeData)
+setLoading(false)
     }
     init()
   }, [])
