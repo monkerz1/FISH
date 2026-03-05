@@ -16,9 +16,12 @@ export default function OwnerLogin() {
   const handleLogin = async () => {
     setLoading(true)
     await supabase.auth.signInWithOtp({
-  email,
-  options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/store-owner/dashboard` },
-})
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/store-owner/dashboard`,
+        shouldCreateUser: false,
+      },
+    })
     setSent(true)
     setLoading(false)
   }
