@@ -38,9 +38,26 @@ export default function ClaimsQueue() {
   }, []);
 
   const handleApprove = async (id: string, storeId: string) => {
-    await supabase.from('store_claims').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
-    await supabase.from('stores').update({ is_claimed: true, claimed_at: new Date().toISOString() }).eq('id', storeId);
-    setClaims(prev => prev.filter(c => c.id !== id));
+    const claim = claims.find(c => c.id === id)
+    if (!claim) return
+
+    const res = await fetch('/api/claims/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        claimId: id,
+        storeId,
+        claimantEmail: claim.claimant_email,
+        claimantName: claim.claimant_name,
+        storeName: claim.stores?.name || 'Your Store',
+      }),
+    })
+
+    if (res.ok) {
+      setClaims(prev => prev.filter(c => c.id !== id))
+    } else {
+      alert('Failed to approve claim. Check console.')
+    }
   };
 
   const handleReject = async (id: string) => {
