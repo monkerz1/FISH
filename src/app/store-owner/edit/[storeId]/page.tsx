@@ -17,6 +17,34 @@ const SPECIALTY_OPTIONS = [
   'Discus',
 ]
 
+const SERVICES_OPTIONS = [
+  'Water Testing',
+  'Custom Tanks',
+  'Delivery',
+  'Aquarium Maintenance',
+  'Installation',
+  'Aquarium Design',
+  'Coral Fragging',
+  'Fish Boarding',
+]
+
+const SUPPLIES_OPTIONS = [
+  'Live Rock',
+  'Live Sand',
+  'Frozen Food',
+  'Live Food',
+  'Dry Food',
+  'RO Water',
+  'Salt Mix',
+  'Reef Supplements',
+  'Lighting',
+  'Filtration',
+  'RO Unit',
+  'Driftwood',
+  'Medications',
+  'CO2 Systems',
+]
+
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const DEFAULT_HOURS = DAYS.map((_, i) => ({
@@ -37,6 +65,8 @@ export default function EditStorePage() {
   const [hours, setHours] = useState(DEFAULT_HOURS)
   const [description, setDescription] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedServices, setSelectedServices] = useState<string[]>([])
+  const [selectedSupplies, setSelectedSupplies] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -51,10 +81,9 @@ export default function EditStorePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/store-owner/login'); return }
 
-      // Verify this store belongs to this user
       const { data: storeData } = await supabase
         .from('stores')
-        .select('id, name, city, state, description, specialty_tags')
+        .select('id, name, city, state, description, specialty_tags, services')
         .eq('id', storeId)
         .eq('owner_user_id', user.id)
         .single()
@@ -65,6 +94,11 @@ export default function EditStorePage() {
       setDescription(storeData.description || '')
       setSelectedTags(storeData.specialty_tags || [])
 
+      // Split services array into services and supplies buckets
+      const allServices = storeData.services || []
+      setSelectedServices(allServices.filter((s: string) => SERVICES_OPTIONS.includes(s)))
+      setSelectedSupplies(allServices.filter((s: string) => SUPPLIES_OPTIONS.includes(s)))
+
       // Load hours
       const { data: hoursData } = await supabase
         .from('store_hours')
@@ -73,7 +107,6 @@ export default function EditStorePage() {
         .order('day_of_week')
 
       if (hoursData && hoursData.length > 0) {
-        // Merge DB hours into DEFAULT_HOURS shape
         const merged = DEFAULT_HOURS.map(def => {
           const found = hoursData.find((h: any) => h.day_of_week === def.day_of_week)
           if (found) {
@@ -100,6 +133,18 @@ export default function EditStorePage() {
     )
   }
 
+  const toggleService = (item: string) => {
+    setSelectedServices(prev =>
+      prev.includes(item) ? prev.filter(s => s !== item) : [...prev, item]
+    )
+  }
+
+  const toggleSupply = (item: string) => {
+    setSelectedSupplies(prev =>
+      prev.includes(item) ? prev.filter(s => s !== item) : [...prev, item]
+    )
+  }
+
   const updateHour = (dayIndex: number, field: string, value: string | boolean) => {
     setHours(prev => prev.map(h =>
       h.day_of_week === dayIndex ? { ...h, [field]: value } : h
@@ -119,13 +164,11 @@ export default function EditStorePage() {
       }
 
       if (section === 'tags') {
-        // Update specialty_tags array on stores
         await supabase
           .from('stores')
           .update({ specialty_tags: selectedTags })
           .eq('id', storeId)
 
-        // Replace all rows in store_tags
         await supabase
           .from('store_tags')
           .delete()
@@ -138,8 +181,16 @@ export default function EditStorePage() {
         }
       }
 
+      if (section === 'services') {
+        // Combine both arrays back into one services column
+        const combined = [...selectedServices, ...selectedSupplies]
+        await supabase
+          .from('stores')
+          .update({ services: combined })
+          .eq('id', storeId)
+      }
+
       if (section === 'hours') {
-        // Delete and reinsert — same pattern as the scraper
         await supabase
           .from('store_hours')
           .delete()
@@ -173,7 +224,6 @@ export default function EditStorePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
         <button
           onClick={() => router.push('/store-owner/dashboard')}
@@ -203,13 +253,13 @@ export default function EditStorePage() {
                 maxLength={500}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="e.g. We're a family-owned aquarium shop specializing in rare reef fish, SPS corals, and high-end aquarium equipment. Our tanks are all quarantine-treated before sale."
+                placeholder="e.g. We're a family-owned aquarium shop specializing in rare reef fish, SPS corals, and high-end aquarium equipment."
               />
               <p className="text-xs text-gray-400 mt-1 text-right">{description.length}/500</p>
             </div>
           )}
 
-          {/* TAGS */}
+          {/* SPECIALTY TAGS */}
           {section === 'tags' && (
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-1">Specialty Tags</h2>
@@ -237,6 +287,58 @@ export default function EditStorePage() {
             </div>
           )}
 
+          {/* SERVICES & SUPPLIES */}
+          {section === 'services' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Services & Supplies</h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Select everything your store offers. This helps customers find you for specific needs.
+                </p>
+              </div>
+
+              {/* Services */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Services</h3>
+                <div className="flex flex-wrap gap-2">
+                  {SERVICES_OPTIONS.map(item => (
+                    <button
+                      key={item}
+                      onClick={() => toggleService(item)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                        selectedServices.includes(item)
+                          ? 'bg-[#4A90D9] text-white border-[#4A90D9]'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Supplies */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Supplies</h3>
+                <div className="flex flex-wrap gap-2">
+                  {SUPPLIES_OPTIONS.map(item => (
+                    <button
+                      key={item}
+                      onClick={() => toggleSupply(item)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                        selectedSupplies.includes(item)
+                          ? 'bg-[#4A90D9] text-white border-[#4A90D9]'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* HOURS */}
           {section === 'hours' && (
             <div>
@@ -248,7 +350,6 @@ export default function EditStorePage() {
                 {hours.map((h) => (
                   <div key={h.day_of_week} className="flex items-center gap-3">
                     <span className="w-24 text-sm font-medium text-gray-700">{DAYS[h.day_of_week]}</span>
-
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="checkbox"
@@ -258,7 +359,6 @@ export default function EditStorePage() {
                       />
                       <span className="text-xs text-gray-500">Closed</span>
                     </label>
-
                     {!h.is_closed && (
                       <>
                         <input
@@ -276,7 +376,6 @@ export default function EditStorePage() {
                         />
                       </>
                     )}
-
                     {h.is_closed && (
                       <span className="text-sm text-red-400 italic">Closed all day</span>
                     )}
