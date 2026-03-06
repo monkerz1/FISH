@@ -3,6 +3,7 @@ import { MetadataRoute } from 'next'
 
 export const revalidate = 0
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 const STATE_SLUGS = [
   'alabama','alaska','arizona','arkansas','california','colorado','connecticut',
