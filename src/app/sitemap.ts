@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { MetadataRoute } from 'next'
 
-export const revalidate = 86400
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
 
 const STATE_SLUGS = [
   'alabama','alaska','arizona','arkansas','california','colorado','connecticut',
