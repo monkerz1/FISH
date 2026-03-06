@@ -40,16 +40,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: stores, error } = await supabase
-    .from('stores')
-    .select('slug, city, state, updated_at')
-    .not('slug', 'is', null)
-    .not('city', 'is', null)
-    .not('state', 'is', null)
-    .eq('is_reviewed', true)
-    .not('verification_status', 'in', '("chain_store","rejected")')
-    .limit(10000)
-  if (error) console.error('Sitemap store fetch error:', error)
+  let stores: any[] = []
+  let from = 0
+  const batchSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('stores')
+      .select('slug, city, state, updated_at')
+      .not('slug', 'is', null)
+      .not('city', 'is', null)
+      .not('state', 'is', null)
+      .eq('is_reviewed', true)
+      .not('verification_status', 'in', '("chain_store","rejected")')
+      .range(from, from + batchSize - 1)
+    if (error) { console.error('Sitemap store fetch error:', error); break; }
+    if (!data || data.length === 0) break
+    stores = stores.concat(data)
+    if (data.length < batchSize) break
+    from += batchSize
+  }
 
   const STATE_ABBR_TO_SLUG: Record<string, string> = {
     'AL':'alabama','AK':'alaska','AZ':'arizona','AR':'arkansas','CA':'california',
