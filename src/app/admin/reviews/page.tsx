@@ -37,12 +37,12 @@ export default function ReviewsQueue() {
   }, []);
 
   const handleApprove = async (id: string) => {
-    await supabase.from('reviews').update({ status: 'approved' }).eq('id', id);
+    await supabase.from('reviews').update({ is_approved: true }).eq('id', id);
     setReviews(prev => prev.filter(r => r.id !== id));
   };
 
   const handleReject = async (id: string) => {
-    await supabase.from('reviews').update({ status: 'rejected' }).eq('id', id);
+    await supabase.from('reviews').delete().eq('id', id);
     setReviews(prev => prev.filter(r => r.id !== id));
   };
 
@@ -69,7 +69,7 @@ export default function ReviewsQueue() {
                     <p className="text-sm text-slate-500">{review.stores?.city}, {review.stores?.state} • {new Date(review.created_at).toLocaleDateString()}</p>
                     <div className="flex gap-1 my-2">
                       {[1,2,3,4,5].map(star => (
-                        <span key={star} className={star <= review.rating ? 'text-yellow-400' : 'text-slate-300'}>★</span>
+                        <span key={star} className={star <= review.overall_rating ? 'text-yellow-400' : 'text-slate-300'}>★</span>
                       ))}
                     </div>
                     <p className="text-sm text-slate-700 mt-2">{review.review_text || 'No comment provided'}</p>
