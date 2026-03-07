@@ -46,7 +46,13 @@ export async function POST(request: NextRequest) {
       .insert({ store_id, verification_type, user_ip, notes: notes || null })
 
     if (error) throw error
-
+    // If still_open, update last_verified_at on the store
+    if (verification_type === 'still_open') {
+      await supabase
+        .from('stores')
+        .update({ last_verified_at: new Date().toISOString() })
+        .eq('id', store_id)
+    }
     // If reported closed, flag the store for admin review
     if (verification_type === 'report_closed') {
       await supabase
@@ -76,7 +82,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const store_id = searchParams.get('store_id')
-
+F
   if (!store_id) {
     return NextResponse.json({ error: 'store_id required' }, { status: 400 })
   }
