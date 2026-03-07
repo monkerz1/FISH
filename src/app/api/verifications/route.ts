@@ -82,7 +82,6 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const store_id = searchParams.get('store_id')
-F
   if (!store_id) {
     return NextResponse.json({ error: 'store_id required' }, { status: 400 })
   }
