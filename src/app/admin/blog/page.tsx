@@ -89,8 +89,18 @@ export default function BlogAdmin() {
     }
   };
 
-  const handleEdit = (p: any) => {
-    setPost({ ...p, tags: Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || '') });
+  const handleEdit = async (p: any) => {
+    const { data } = await supabase.from('blog_posts').select('*').eq('id', p.id).single();
+    if (data) {
+      setPost({
+        ...data,
+        tags: Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''),
+        seo_title: data.seo_title || '',
+        seo_description: data.seo_description || '',
+        excerpt: data.excerpt || '',
+        content: data.content || '',
+      });
+    }
     setView('editor');
   };
 
