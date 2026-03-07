@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Footer } from '@/components/footer'
 import ReviewButtonClient from '@/components/ReviewButtonClient'
+import StillOpenWidget from '@/components/StillOpenWidget'
 import PhotoGallery from '@/components/PhotoGallery'
 
 interface StorePageProps {
