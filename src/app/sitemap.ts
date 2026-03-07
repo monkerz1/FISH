@@ -86,5 +86,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     })
 
-  return [...staticPages, ...statePages, ...storePages]
+  // Blog posts
+  let blogPosts: any[] = []
+  const { data: blogData, error: blogError } = await supabase
+    .from('blog_posts')
+    .select('slug, updated_at')
+    .eq('is_published', true)
+  if (blogError) {
+    console.error('Sitemap blog fetch error:', blogError)
+  } else {
+    blogPosts = blogData || []
+  }
+
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map(post => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: post.updated_at ? new Date(post.updated_at) : new Date(),
+    priority: 0.7,
+    changeFrequency: 'monthly' as const,
+  }))
+
+  return [...staticPages, ...statePages, ...storePages, ...blogPages]
 }
