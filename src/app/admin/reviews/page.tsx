@@ -37,12 +37,20 @@ export default function ReviewsQueue() {
   }, []);
 
   const handleApprove = async (id: string) => {
-    await supabase.from('reviews').update({ is_approved: true }).eq('id', id);
+    await fetch('/api/reviews/moderate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: 'approve' }),
+    });
     setReviews(prev => prev.filter(r => r.id !== id));
   };
 
   const handleReject = async (id: string) => {
-    await supabase.from('reviews').delete().eq('id', id);
+    await fetch('/api/reviews/moderate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: 'reject' }),
+    });
     setReviews(prev => prev.filter(r => r.id !== id));
   };
 
