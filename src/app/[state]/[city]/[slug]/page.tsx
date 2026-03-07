@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Footer } from '@/components/footer'
-import StillOpenWidget from '@/components/StillOpenWidget'
+import ReviewButtonClient from '@/components/ReviewButtonClient'
 import PhotoGallery from '@/components/PhotoGallery'
 
 interface StorePageProps {
@@ -246,9 +246,7 @@ export default async function StorePage({ params }: StorePageProps) {
                   <span className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center text-sm">⭐</span>
                   Community Reviews
                 </h2>
-                <button className="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-all">
-                  + Write a Review
-                </button>
+                <ReviewButtonClient storeId={store.id} storeName={store.name} />
               </div>
               {store.rating > 0 && (
                 <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4">
