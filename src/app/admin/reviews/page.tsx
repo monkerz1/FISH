@@ -28,7 +28,7 @@ export default function ReviewsQueue() {
       const { data } = await supabase
         .from('reviews')
         .select('*, stores(name, city, state)')
-        .eq('status', 'pending')
+        .eq('is_approved', false)
         .order('created_at', { ascending: false });
       setReviews(data || []);
       setLoading(false);
@@ -72,8 +72,8 @@ export default function ReviewsQueue() {
                         <span key={star} className={star <= review.rating ? 'text-yellow-400' : 'text-slate-300'}>★</span>
                       ))}
                     </div>
-                    <p className="text-sm text-slate-700 mt-2">{review.comment || review.body || 'No comment provided'}</p>
-                    <p className="text-xs text-slate-500 mt-1">By: {review.reviewer_name || review.author || 'Anonymous'}</p>
+                    <p className="text-sm text-slate-700 mt-2">{review.review_text || 'No comment provided'}</p>
+                    <p className="text-xs text-slate-500 mt-1">By: {review.display_name || 'Anonymous'}</p>
                   </div>
                   <div className="flex gap-2 ml-4">
                     <Button onClick={() => handleApprove(review.id)} className="bg-green-600 hover:bg-green-700 text-white h-9 px-3">
