@@ -37,11 +37,16 @@ export default function ReviewsQueue() {
   }, []);
 
   const handleApprove = async (id: string) => {
-    await fetch('/api/reviews/moderate', {
+    const res = await fetch('/api/reviews/moderate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, action: 'approve' }),
     });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Error: ' + data.error);
+      return;
+    }
     setReviews(prev => prev.filter(r => r.id !== id));
   };
 
