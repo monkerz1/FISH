@@ -36,6 +36,11 @@ export function Footer() {
                   Browse by State
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-gray-600 hover:text-[#4A90D9]">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
 
