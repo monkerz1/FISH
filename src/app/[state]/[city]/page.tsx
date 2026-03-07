@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Footer } from '@/components/footer'
 import { Star, MapPin, Phone, Globe } from 'lucide-react'
@@ -23,7 +24,8 @@ interface CityPageProps {
 
 export default async function CityPage({ params }: CityPageProps) {
   const { state: stateSlug, city: citySlug } = await params
-  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
+  if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
+  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
   const cityName = citySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 
   const { data: stores } = await supabase
