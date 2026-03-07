@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { StateHeader } from '@/components/state-header'
 import { SpecialtyFilterBarWrapper } from '@/components/specialty-filter-bar-wrapper'
@@ -48,7 +49,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: StatePageProps) {
   const { state: stateSlug } = await params
-  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
+  if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
+  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
   return {
@@ -67,7 +69,8 @@ interface StatePageProps {
 
 export default async function StatePage({ params }: StatePageProps) {
   const { state: stateSlug } = await params
-  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()] || stateSlug.toUpperCase()
+  if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
+  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
 // Fetch cities with store counts — only reviewed stores
