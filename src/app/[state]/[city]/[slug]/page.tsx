@@ -72,6 +72,15 @@ export default async function StorePage({ params }: StorePageProps) {
 
   if (!store) notFound()
 
+const { data: approvedReviews } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('store_id', store.id)
+    .eq('is_approved', true)
+    .order('created_at', { ascending: false })
+
+  const reviews = approvedReviews || []
+
   const { data: hoursRows } = await supabase
     .from('store_hours')
     .select('*')
@@ -268,11 +277,48 @@ export default async function StorePage({ params }: StorePageProps) {
                   </div>
                 </div>
               )}
-              <div className="text-center py-6 text-slate-400">
-                <div className="text-3xl mb-2">💬</div>
-                <p className="text-sm font-medium text-slate-600">No community reviews yet</p>
-                <p className="text-xs mt-1">Be the first to rate this store on livestock health, staff knowledge, and more.</p>
-              </div>
+              {reviews.length === 0 ? (
+                <div className="text-center py-6 text-slate-400">
+                  <div className="text-3xl mb-2">💬</div>
+                  <p className="text-sm font-medium text-slate-600">No community reviews yet</p>
+                  <p className="text-xs mt-1">Be the first to rate this store on livestock health, staff knowledge, and more.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review: any) => (
+                    <div key={review.id} className="border border-slate-100 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-slate-800 text-sm">{review.display_name}</span>
+                        <span className="text-xs text-slate-400">{new Date(review.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex gap-0.5 mb-2">
+                        {[1,2,3,4,5].map((s) => (
+                          <span key={s} className={s <= review.overall_rating ? 'text-amber-400' : 'text-slate-200'}>★</span>
+                        ))}
+                      </div>
+                      {review.review_text && (
+                        <p className="text-sm text-slate-600 leading-relaxed">{review.review_text}</p>
+                      )}
+                      {(review.livestock_health || review.staff_knowledge || review.quarantine_practices || review.price_fairness) && (
+                        <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100">
+                          {review.livestock_health && (
+                            <div className="text-xs text-slate-500">🐟 Livestock Health: {'★'.repeat(review.livestock_health)}</div>
+                          )}
+                          {review.staff_knowledge && (
+                            <div className="text-xs text-slate-500">🧑‍🔬 Staff Knowledge: {'★'.repeat(review.staff_knowledge)}</div>
+                          )}
+                          {review.quarantine_practices && (
+                            <div className="text-xs text-slate-500">🔬 Quarantine: {'★'.repeat(review.quarantine_practices)}</div>
+                          )}
+                          {review.price_fairness && (
+                            <div className="text-xs text-slate-500">💰 Pricing: {'★'.repeat(review.price_fairness)}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
