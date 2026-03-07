@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
-import { BarChart3, ClipboardList, Store, MessageSquare, CheckSquare, Settings, LogOut } from 'lucide-react';
+import { BarChart3, ClipboardList, Store, MessageSquare, CheckSquare, Settings, LogOut, BookOpen } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/stores', label: 'All Stores', icon: Store },
   { href: '/admin/reviews', label: 'Reviews Queue', icon: MessageSquare },
   { href: '/admin/claims', label: 'Claims Queue', icon: CheckSquare },
+  { href: '/admin/blog', label: 'Blog Posts', icon: BookOpen },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
