@@ -36,6 +36,8 @@ export async function generateMetadata({ params }: CityPageProps) {
     },
   }
 }
+
+export default async function CityPage({ params }: CityPageProps) {
   const { state: stateSlug, city: citySlug } = await params
   if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
   const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
