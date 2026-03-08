@@ -82,8 +82,8 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-semibold mb-3">10. Contact Us</h2>
         <p className="text-gray-700 leading-relaxed">
           If you have questions about this Privacy Policy, please contact us at:{' '}
-          <a href="mailto:privacy@lfsdirectory.com" className="text-blue-600 underline">
-            privacy@lfsdirectory.com
+          <a href="https://www.lfsdirectory.com/contact" className="text-blue-600 underline">
+            Contact Us Page
           </a>
         </p>
       </section>
