@@ -105,5 +105,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
   }))
 
-  return [...staticPages, ...statePages, ...storePages, ...blogPages]
+  // City pages derived from store data
+  const citySet = new Set<string>()
+  const cityPages: MetadataRoute.Sitemap = []
+  for (const store of stores) {
+    const stateSlug = STATE_ABBR_TO_SLUG[store.state.toUpperCase()] || store.state.toLowerCase()
+    const citySlug = store.city.toLowerCase().replace(/\s+/g, '-')
+    const key = `${stateSlug}/${citySlug}`
+    if (!citySet.has(key)) {
+      citySet.add(key)
+      cityPages.push({
+        url: `${baseUrl}/${stateSlug}/${citySlug}`,
+        priority: 0.75,
+        changeFrequency: 'weekly' as const,
+        lastModified: new Date(),
+      })
+    }
+  }
+
+  return [...staticPages, ...statePages, ...cityPages, ...storePages, ...blogPages]
 }
