@@ -22,7 +22,20 @@ interface CityPageProps {
   params: Promise<{ state: string; city: string }>
 }
 
-export default async function CityPage({ params }: CityPageProps) {
+export async function generateMetadata({ params }: CityPageProps) {
+  const { state: stateSlug, city: citySlug } = await params
+  const cityName = citySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
+  if (!stateAbbr) return {}
+
+  return {
+    title: `Fish Stores in ${cityName}, ${stateAbbr} | LFSDirectory`,
+    description: `Find local fish stores and aquarium shops in ${cityName}, ${stateAbbr}. Browse listings, hours, and reviews.`,
+    alternates: {
+      canonical: `https://lfsdirectory.com/${stateSlug.toLowerCase()}/${citySlug.toLowerCase()}`,
+    },
+  }
+}
   const { state: stateSlug, city: citySlug } = await params
   if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
   const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
