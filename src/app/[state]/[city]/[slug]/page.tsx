@@ -72,6 +72,15 @@ export default async function StorePage({ params }: StorePageProps) {
 
   if (!store) notFound()
 
+  // Fetch nearby stores
+  const { data: nearbyStores } = store.lat && store.lng
+    ? await supabase.rpc('search_stores_near', {
+        user_lat: store.lat,
+        user_lng: store.lng,
+        radius_miles: 25,
+      }).neq('id', store.id).eq('is_reviewed', true).limit(4)
+    : { data: [] }
+
 const { data: approvedReviews } = await supabase
     .from('reviews')
     .select('*')
@@ -435,6 +444,53 @@ const { data: approvedReviews } = await supabase
               )}
             </div>
             <StillOpenWidget storeId={store.id} lastVerified={store.last_verified_at || null} />
+
+            {nearbyStores && nearbyStores.length > 0 && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">📍 Nearby Fish Stores</h3>
+                <div className="space-y-2">
+                  {nearbyStores.map((nearby: any) => {
+                    const nearbyStateSlug = nearby.state?.toLowerCase().replace(/\s+/g, '-')
+                    const nearbyCitySlug = nearby.city?.toLowerCase().replace(/\s+/g, '-')
+                    return (
+                      <Link
+                        key={nearby.id}
+                        href={`/${nearbyStateSlug}/${nearbyCitySlug}/${nearby.slug || nearby.id}`}
+                        className="flex items-start justify-between gap-2 p-3 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 transition-all group"
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-slate-800 group-hover:text-blue-700 truncate">
+                            {nearby.name}
+                          </div>
+                          <div className="text-xs text-slate-500 mt-0.5">
+                            {nearby.city}, {nearby.state}
+                          </div>
+                          {nearby.specialty_tags?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {nearby.specialty_tags.slice(0, 2).map((tag: string) => (
+                                <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium capitalize">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-xs font-bold text-slate-600">
+                            {nearby.distance_miles.toFixed(1)} mi
+                          </div>
+                          {nearby.rating > 0 && (
+                            <div className="text-xs text-amber-500 mt-0.5">
+                              ★ {Number(nearby.rating).toFixed(1)}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {!store.is_claimed && (
               <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
