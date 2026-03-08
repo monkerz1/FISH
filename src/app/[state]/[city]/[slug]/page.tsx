@@ -89,6 +89,16 @@ const { data: approvedReviews } = await supabase
     .order('created_at', { ascending: false })
 
   const reviews = approvedReviews || []
+// Fetch nearby clubs in same state
+  const { data: nearbyClubs } = await supabase
+    .from('clubs')
+    .select('id, name, city, state, slug, focus, website, facebook_url')
+    .eq('state', store.state)
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+    .limit(3)
+
+  const clubs = nearbyClubs || []
 
   const { data: hoursRows } = await supabase
     .from('store_hours')
@@ -444,7 +454,52 @@ const { data: approvedReviews } = await supabase
               )}
             </div>
             <StillOpenWidget storeId={store.id} lastVerified={store.last_verified_at || null} />
-
+{clubs.length > 0 && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">🤝 Aquarium Clubs Nearby</h3>
+                <div className="space-y-2">
+                  {clubs.map((club: any) => {
+                    const clubStateSlug = club.state?.toLowerCase() === 'al' ? 'alabama'
+                      : club.state?.toLowerCase()
+                    return (
+                      <div key={club.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="font-semibold text-slate-800 text-sm">{club.name}</div>
+                        <div className="text-xs text-slate-500 mt-0.5 mb-2">{club.city}, {club.state}</div>
+                        {(club.focus || []).length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {club.focus.slice(0, 3).map((f: string) => (
+                              <span key={f} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 capitalize">
+                                {f}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          {club.website && (
+                            <a href={club.website} target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline font-medium">
+                              Website →
+                            </a>
+                          )}
+                          {club.facebook_url && (
+                            <a href={club.facebook_url} target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline font-medium">
+                              Facebook →
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <Link
+                  href={`/clubs/${stateSlug}`}
+                  className="block text-center text-xs text-blue-600 hover:underline font-medium mt-3 pt-3 border-t border-slate-100"
+                >
+                  View all clubs in {stateSlug.charAt(0).toUpperCase() + stateSlug.slice(1)} →
+                </Link>
+              </div>
+            )}
             {nearbyStores && nearbyStores.length > 0 && (
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">📍 Nearby Fish Stores</h3>
