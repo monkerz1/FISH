@@ -23,6 +23,9 @@ export async function generateMetadata({ params }: StorePageProps) {
   return {
     title: `${store.name} — Fish Store in ${store.city}, ${store.state} | LFSDirectory`,
     description: store.description || `${store.name} is a local fish store in ${store.city}, ${store.state}. Find hours, directions, and reviews on LFSDirectory.`,
+    alternates: {
+      canonical: `https://lfsdirectory.com/${store.state.toLowerCase()}/${store.city.toLowerCase().replace(/\s+/g, '-')}/${slug}`,
+    },
   }
 }
 

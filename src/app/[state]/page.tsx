@@ -56,6 +56,9 @@ export async function generateMetadata({ params }: StatePageProps) {
   return {
     title: `Fish Stores in ${stateName} — Local Aquarium Shops | LFSDirectory`,
     description: `Find local fish stores and aquarium shops in ${stateName}. Browse by city, read reviews, and discover the best LFS near you.`,
+    alternates: {
+      canonical: `https://lfsdirectory.com/${stateSlug.toLowerCase()}`,
+    },
     openGraph: {
       title: `Fish Stores in ${stateName} | LFSDirectory`,
       description: `Browse ${stateName}'s best local fish stores and aquarium shops by city.`,
