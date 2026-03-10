@@ -13,6 +13,7 @@ export function SiteHeader() {
     { href: '/states', label: 'Browse States' },
     { href: '/tools', label: 'Tools' },
     { href: '/add-store', label: 'Add a Store' },
+    { href: '/clubs', label: 'Clubs' },
     { href: '/blog', label: 'Blog' },
   ];
 
