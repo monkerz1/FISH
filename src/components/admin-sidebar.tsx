@@ -12,6 +12,7 @@ const navItems = [
   { href: '/admin/reviews', label: 'Reviews Queue', icon: MessageSquare },
   { href: '/admin/claims', label: 'Claims Queue', icon: CheckSquare },
   { href: '/admin/blog', label: 'Blog Posts', icon: BookOpen },
+  { href: '/admin/clubs', label: 'Aquarium Clubs', icon: Store },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

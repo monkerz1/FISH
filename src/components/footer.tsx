@@ -37,6 +37,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/clubs" className="text-gray-600 hover:text-[#4A90D9]">
+                  Aquarium Clubs
+                </Link>
+              </li>
+              <li>
                 <Link href="/blog" className="text-gray-600 hover:text-[#4A90D9]">
                   Blog
                 </Link>
