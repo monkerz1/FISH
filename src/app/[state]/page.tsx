@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { StateHeader } from '@/components/state-header'
 import { SpecialtyFilterBarWrapper } from '@/components/specialty-filter-bar-wrapper'
@@ -41,6 +41,23 @@ const STATE_NAMES: Record<string, string> = {
   'WI': 'Wisconsin', 'WY': 'Wyoming'
 }
 
+// Map 2-letter abbreviations back to full slug for redirect
+const ABBR_TO_SLUG: Record<string, string> = {
+  'al': 'alabama', 'ak': 'alaska', 'az': 'arizona', 'ar': 'arkansas',
+  'ca': 'california', 'co': 'colorado', 'ct': 'connecticut', 'de': 'delaware',
+  'fl': 'florida', 'ga': 'georgia', 'hi': 'hawaii', 'id': 'idaho',
+  'il': 'illinois', 'in': 'indiana', 'ia': 'iowa', 'ks': 'kansas',
+  'ky': 'kentucky', 'la': 'louisiana', 'me': 'maine', 'md': 'maryland',
+  'ma': 'massachusetts', 'mi': 'michigan', 'mn': 'minnesota', 'ms': 'mississippi',
+  'mo': 'missouri', 'mt': 'montana', 'ne': 'nebraska', 'nv': 'nevada',
+  'nh': 'new-hampshire', 'nj': 'new-jersey', 'nm': 'new-mexico', 'ny': 'new-york',
+  'nc': 'north-carolina', 'nd': 'north-dakota', 'oh': 'ohio', 'ok': 'oklahoma',
+  'or': 'oregon', 'pa': 'pennsylvania', 'ri': 'rhode-island', 'sc': 'south-carolina',
+  'sd': 'south-dakota', 'tn': 'tennessee', 'tx': 'texas', 'ut': 'utah',
+  'vt': 'vermont', 'va': 'virginia', 'wa': 'washington', 'wv': 'west-virginia',
+  'wi': 'wisconsin', 'wy': 'wyoming'
+}
+
 export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
@@ -49,8 +66,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: StatePageProps) {
   const { state: stateSlug } = await params
-  if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
-  const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
+  const slug = stateSlug.toLowerCase()
+  const resolvedSlug = ABBR_TO_SLUG[slug] || slug
+  if (!STATE_ABBR[resolvedSlug]) notFound()
+  const stateAbbr = STATE_ABBR[resolvedSlug]
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
   return {
@@ -72,7 +91,10 @@ interface StatePageProps {
 
 export default async function StatePage({ params }: StatePageProps) {
   const { state: stateSlug } = await params
-  if (!STATE_ABBR[stateSlug.toLowerCase()]) notFound()
+  const slug = stateSlug.toLowerCase()
+  // Redirect 2-letter codes to full state name URL
+  if (ABBR_TO_SLUG[slug]) redirect(`/${ABBR_TO_SLUG[slug]}`)
+  if (!STATE_ABBR[slug]) notFound()
   const stateAbbr = STATE_ABBR[stateSlug.toLowerCase()]
   const stateName = STATE_NAMES[stateAbbr] || stateSlug
 
