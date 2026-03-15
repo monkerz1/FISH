@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 
 function photoUrl(resourceName: string) {
-  return `https://places.googleapis.com/v1/${resourceName}/media?maxWidthPx=1200&key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}`
+  return `/api/places-photo?resource=${encodeURIComponent(resourceName)}&maxWidth=1200`
 }
 
 function photoThumbUrl(resourceName: string) {
-  return `https://places.googleapis.com/v1/${resourceName}/media?maxWidthPx=400&key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}`
+  return `/api/places-photo?resource=${encodeURIComponent(resourceName)}&maxWidth=400`
 }
 
 export default function PhotoGallery({ photos }: { photos: string[] }) {
