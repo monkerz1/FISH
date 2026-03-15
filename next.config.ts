@@ -17,12 +17,6 @@ const STATE_SLUG_TO_ABBR: Record<string, string> = {
 }
 
 const stateRedirects = Object.entries(STATE_SLUG_TO_ABBR).flatMap(([full, abbr]) => [
-  // /california -> /ca
-  {
-    source: `/${full}`,
-    destination: `/${abbr}`,
-    permanent: true,
-  },
   // /california/:city -> /ca/:city
   {
     source: `/${full}/:city`,
