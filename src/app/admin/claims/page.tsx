@@ -56,8 +56,18 @@ export default function ClaimsQueue() {
   };
 
   const handleApprove = async (id: string, storeId: string) => {
-    await supabase.from('store_claims').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
-    await supabase.from('stores').update({ is_claimed: true, claimed_at: new Date().toISOString() }).eq('id', storeId);
+    const claim = pendingClaims.find(c => c.id === id);
+    await fetch('/api/claims/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        claimId: id,
+        storeId: storeId,
+        claimantEmail: claim?.claimant_email,
+        claimantName: claim?.claimant_name,
+        storeName: claim?.stores?.name,
+      }),
+    });
     await loadClaims();
   };
 
@@ -148,7 +158,7 @@ export default function ClaimsQueue() {
           <div className="flex gap-2 pt-2 border-t border-slate-200">
             {showActions ? (
               <>
-                <Button onClick={() => handleApprove(claim.id, claim.store_id)} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={() => handleApprove(claim.id, claim.stores?.id)} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
                   <CheckCircle2 size={18} className="mr-2" /> Approve Claim
                 </Button>
                 <Button onClick={() => handleReject(claim.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white">
