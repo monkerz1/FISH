@@ -50,7 +50,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to generate login link' }, { status: 500 })
     }
 
-    const magicLink = linkData.properties?.action_link
+    const actionLink = linkData.properties?.action_link
+    const token_hash = linkData.properties?.hashed_token
+    const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?token_hash=${token_hash}&type=magiclink&next=/store-owner/dashboard`
 
     // 4. Mark claim as approved
     await supabase

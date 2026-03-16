@@ -177,7 +177,7 @@ setLoading(false)
         {/* Info-only box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm font-medium text-blue-800 mb-1">Need to update your phone, address, or website?</p>
-          <p className="text-sm text-blue-700">Those changes are reviewed by our team. Email <a href="mailto:admin@lfsdirectory.com" className="underline">admin@lfsdirectory.com</a> with your request.</p>
+          <p className="text-sm text-blue-700">Those changes are reviewed by our team. <a href="/contact" className="underline">Contact us</a> with your request.</p>
         </div>
 
       </div>
