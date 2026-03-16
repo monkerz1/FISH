@@ -20,9 +20,13 @@ export default function OwnerDashboard() {
 const { data: { session } } = await supabase.auth.getSession()
 
 if (!session) {
-  // Give it one more second for the magic link token to process
-  await new Promise(resolve => setTimeout(resolve, 1500))
-  const { data: { session: retrySession } } = await supabase.auth.getSession()
+  // Retry up to 3 times with increasing delays for magic link session hydration
+  let retrySession = null
+  for (let i = 0; i < 3; i++) {
+    await new Promise(resolve => setTimeout(resolve, 1000 + i * 1000))
+    const { data: { session: s } } = await supabase.auth.getSession()
+    if (s) { retrySession = s; break }
+  }
   if (!retrySession) {
     router.push('/store-owner/login')
     return
