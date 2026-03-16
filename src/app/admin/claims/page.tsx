@@ -101,7 +101,28 @@ export default function ClaimsQueue() {
     await loadClaims();
     setTimeout(() => setSaveMsg(''), 2000);
   };
+const handleResendApproval = async () => {
+    if (!editingClaim) return
+    const res = await fetch('/api/claims/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        claimId: editingClaim.id,
+        storeId: editingClaim.stores?.id,
+        claimantEmail: editingClaim.claimant_email,
+        claimantName: editingClaim.claimant_name,
+        storeName: editingClaim.stores?.name,
+      }),
+    })
+    if (res.ok) {
+      setSaveMsg('Approval email resent!')
+      setTimeout(() => setSaveMsg(''), 3000)
+    } else {
+      setSaveMsg('Failed to resend — check console.')
+    }
+  }
 
+  const handleRevoke = async () => {
   const handleRevoke = async () => {
     if (!editingClaim) return;
     if (!confirm('Revoke this claim? The store will go back to unclaimed.')) return;
@@ -283,6 +304,12 @@ export default function ClaimsQueue() {
                 </Button>
               </div>
               {saveMsg && <p className="text-green-600 text-sm text-center font-medium">{saveMsg}</p>}
+              <button
+                onClick={handleResendApproval}
+                className="text-[#4A90D9] hover:text-blue-700 text-sm underline text-center mt-1"
+              >
+                Resend approval email
+              </button>
               <button
                 onClick={handleRevoke}
                 className="text-red-500 hover:text-red-700 text-sm underline text-center mt-1"
