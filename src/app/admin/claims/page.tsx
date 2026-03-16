@@ -101,7 +101,7 @@ export default function ClaimsQueue() {
     await loadClaims();
     setTimeout(() => setSaveMsg(''), 2000);
   };
-const handleResendApproval = async () => {
+  const handleResendApproval = async () => {
     if (!editingClaim) return
     const res = await fetch('/api/claims/approve', {
       method: 'POST',
@@ -122,7 +122,6 @@ const handleResendApproval = async () => {
     }
   }
 
-  const handleRevoke = async () => {
   const handleRevoke = async () => {
     if (!editingClaim) return;
     if (!confirm('Revoke this claim? The store will go back to unclaimed.')) return;
