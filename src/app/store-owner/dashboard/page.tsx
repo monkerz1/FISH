@@ -153,6 +153,20 @@ setLoading(false)
                 Edit
               </button>
             </div>
+
+            {/* Social Media */}
+            <div className="py-4 flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-800">Social Media</p>
+                <p className="text-sm text-gray-500 mt-0.5">Add your Facebook, Instagram, YouTube, or TikTok links.</p>
+              </div>
+              <button
+                onClick={() => router.push(`/store-owner/edit/${store.id}?section=socials`)}
+                className="ml-4 px-4 py-2 bg-[#4A90D9] text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Edit
+              </button>
+            </div>
           </div>
         </div>
 

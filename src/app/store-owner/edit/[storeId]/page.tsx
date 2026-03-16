@@ -67,6 +67,10 @@ export default function EditStorePage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [selectedSupplies, setSelectedSupplies] = useState<string[]>([])
+  const [socialFacebook, setSocialFacebook] = useState('')
+  const [socialInstagram, setSocialInstagram] = useState('')
+  const [socialYoutube, setSocialYoutube] = useState('')
+  const [socialTiktok, setSocialTiktok] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -83,7 +87,7 @@ export default function EditStorePage() {
 
       const { data: storeData } = await supabase
         .from('stores')
-        .select('id, name, city, state, description, specialty_tags, services')
+        .select('id, name, city, state, description, specialty_tags, services, social_facebook, social_instagram, social_youtube, social_tiktok')
         .eq('id', storeId)
         .eq('owner_user_id', user.id)
         .single()
@@ -93,6 +97,10 @@ export default function EditStorePage() {
       setStore(storeData)
       setDescription(storeData.description || '')
       setSelectedTags(storeData.specialty_tags || [])
+      setSocialFacebook(storeData.social_facebook || '')
+      setSocialInstagram(storeData.social_instagram || '')
+      setSocialYoutube(storeData.social_youtube || '')
+      setSocialTiktok(storeData.social_tiktok || '')
 
       // Split services array into services and supplies buckets
       const allServices = storeData.services || []
@@ -189,7 +197,17 @@ export default function EditStorePage() {
           .update({ services: combined })
           .eq('id', storeId)
       }
-
+      if (section === 'socials') {
+        await supabase
+          .from('stores')
+          .update({
+            social_facebook: socialFacebook || null,
+            social_instagram: socialInstagram || null,
+            social_youtube: socialYoutube || null,
+            social_tiktok: socialTiktok || null,
+          })
+          .eq('id', storeId)
+      }
       if (section === 'hours') {
         await supabase
           .from('store_hours')
@@ -338,7 +356,57 @@ export default function EditStorePage() {
               </div>
             </div>
           )}
-
+          {/* SOCIALS */}
+          {section === 'socials' && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Social Media</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Add your store's social media links. These will appear on your listing page.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+                  <input
+                    type="url"
+                    value={socialFacebook}
+                    onChange={e => setSocialFacebook(e.target.value)}
+                    placeholder="https://facebook.com/yourstorename"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                  <input
+                    type="url"
+                    value={socialInstagram}
+                    onChange={e => setSocialInstagram(e.target.value)}
+                    placeholder="https://instagram.com/yourstorename"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">YouTube</label>
+                  <input
+                    type="url"
+                    value={socialYoutube}
+                    onChange={e => setSocialYoutube(e.target.value)}
+                    placeholder="https://youtube.com/@yourstorename"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
+                  <input
+                    type="url"
+                    value={socialTiktok}
+                    onChange={e => setSocialTiktok(e.target.value)}
+                    placeholder="https://tiktok.com/@yourstorename"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
           {/* HOURS */}
           {section === 'hours' && (
             <div>
