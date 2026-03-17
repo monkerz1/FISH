@@ -10,8 +10,8 @@ export function CTABanner() {
         <p className="mb-8 text-lg text-blue-100">
           Claim your free listing and reach aquarium enthusiasts in your area
         </p>
-        <Button className="bg-white px-8 py-6 text-lg font-semibold text-[#4A90D9] hover:bg-blue-50">
-          Claim Your Free Listing
+        <Button asChild className="bg-white px-8 py-6 text-lg font-semibold text-[#4A90D9] hover:bg-blue-50">
+          <a href="/claim">Claim Your Free Listing</a>
         </Button>
       </div>
     </section>
