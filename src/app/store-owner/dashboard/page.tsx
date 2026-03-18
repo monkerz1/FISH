@@ -171,6 +171,20 @@ setLoading(false)
                 Edit
               </button>
             </div>
+            <div className="border-t border-gray-100" />
+            {/* Photos */}
+            <div className="py-4 flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-800">Photos</p>
+                <p className="text-sm text-gray-500 mt-0.5">Upload your own photos, hide Google photos, and set display order.</p>
+              </div>
+              <button
+                onClick={() => router.push(`/store-owner/edit/${store.id}?section=photos`)}
+                className="ml-4 px-4 py-2 bg-[#4A90D9] text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Edit
+              </button>
+            </div>
           </div>
         </div>
 

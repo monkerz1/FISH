@@ -72,6 +72,10 @@ export default function EditStorePage() {
   const [socialYoutube, setSocialYoutube] = useState('')
   const [socialTiktok, setSocialTiktok] = useState('')
   const [saving, setSaving] = useState(false)
+  const [photos, setPhotos] = useState<any[]>([])
+  const [photosLoading, setPhotosLoading] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [photoError, setPhotoError] = useState('')
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -130,10 +134,109 @@ export default function EditStorePage() {
         setHours(merged)
       }
 
+      // Load photos
+      const { data: photosData } = await supabase
+        .from('store_photos')
+        .select('*')
+        .eq('store_id', storeId)
+        .eq('is_hidden', false)
+        .order('sort_order', { ascending: true })
+      setPhotos(photosData || [])
+
       setLoading(false)
     }
     init()
   }, [storeId])
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhotoError('')
+    setUploadingPhoto(true)
+
+    try {
+      // Compress in browser before upload
+      const bitmap = await createImageBitmap(file)
+      const canvas = document.createElement('canvas')
+      const MAX = 1200
+      const ratio = Math.min(MAX / bitmap.width, MAX / bitmap.height, 1)
+      canvas.width = Math.round(bitmap.width * ratio)
+      canvas.height = Math.round(bitmap.height * ratio)
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+
+      const blob = await new Promise<Blob>((resolve) =>
+        canvas.toBlob((b) => resolve(b!), 'image/jpeg', 0.82)
+      )
+
+      if (blob.size > 300 * 1024) {
+        setPhotoError('Image is still too large after compression. Try a smaller image.')
+        setUploadingPhoto(false)
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', blob, 'photo.jpg')
+      formData.append('storeId', storeId)
+
+      const res = await fetch('/api/store-photos/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setPhotoError(data.error || 'Upload failed')
+      } else {
+        setPhotos(prev => [...prev, data.photo])
+      }
+    } catch (err) {
+      setPhotoError('Upload failed. Please try again.')
+    } finally {
+      setUploadingPhoto(false)
+      e.target.value = ''
+    }
+  }
+
+  const handleHidePhoto = async (photoId: string) => {
+    const res = await fetch('/api/store-photos/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'hide', photoId, storeId }),
+    })
+    if (res.ok) {
+      setPhotos(prev => prev.filter(p => p.id !== photoId))
+    }
+  }
+
+  const handleDeletePhoto = async (photoId: string) => {
+    const res = await fetch('/api/store-photos/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', photoId, storeId }),
+    })
+    if (res.ok) {
+      setPhotos(prev => prev.filter(p => p.id !== photoId))
+    }
+  }
+
+  const movePhoto = async (index: number, direction: 'up' | 'down') => {
+    const newPhotos = [...photos]
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    if (swapIndex < 0 || swapIndex >= newPhotos.length) return
+    ;[newPhotos[index], newPhotos[swapIndex]] = [newPhotos[swapIndex], newPhotos[index]]
+    const reordered = newPhotos.map((p, i) => ({ ...p, sort_order: i }))
+    setPhotos(reordered)
+    await fetch('/api/store-photos/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'reorder',
+        storeId,
+        order: reordered.map(p => ({ id: p.id, sort_order: p.sort_order })),
+      }),
+    })
+  }
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -449,6 +552,84 @@ export default function EditStorePage() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* PHOTOS */}
+          {section === 'photos' && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Photo Gallery</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Upload your own photos, hide Google photos you don&apos;t want, and reorder them. The first photo is your store&apos;s hero image.
+              </p>
+
+              {/* Upload button */}
+              <div className="mb-6">
+                <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${uploadingPhoto ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#4A90D9] hover:bg-blue-600 text-white'}`}>
+                  {uploadingPhoto ? 'Uploading...' : '+ Upload Photo'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploadingPhoto}
+                    onChange={handlePhotoUpload}
+                  />
+                </label>
+                <p className="text-xs text-gray-400 mt-1">JPG or PNG. Images are automatically compressed to keep file sizes small.</p>
+                {photoError && <p className="text-xs text-red-500 mt-1">{photoError}</p>}
+              </div>
+
+              {/* Photo grid */}
+              {photos.length === 0 && (
+                <p className="text-sm text-gray-400 italic">No photos yet. Upload one above or Google photos will show automatically.</p>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                {photos.map((photo, index) => {
+                  const imgUrl = photo.source === 'owner'
+                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/store-photos/${photo.storage_path}`
+                    : `/api/places-photo?resource=${encodeURIComponent(photo.google_ref)}&maxWidth=400`
+                  return (
+                    <div key={photo.id} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                      <img
+                        src={imgUrl}
+                        alt={`Store photo ${index + 1}`}
+                        className="w-full h-36 object-cover"
+                      />
+                      {index === 0 && (
+                        <span className="absolute top-1 left-1 bg-[#4A90D9] text-white text-xs px-2 py-0.5 rounded font-medium">Hero</span>
+                      )}
+                      {photo.source === 'google' && (
+                        <span className="absolute top-1 right-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">Google</span>
+                      )}
+                      <div className="p-2 flex items-center justify-between gap-1">
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => movePhoto(index, 'up')}
+                            disabled={index === 0}
+                            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-30 rounded"
+                          >↑</button>
+                          <button
+                            onClick={() => movePhoto(index, 'down')}
+                            disabled={index === photos.length - 1}
+                            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-30 rounded"
+                          >↓</button>
+                        </div>
+                        {photo.source === 'google' ? (
+                          <button
+                            onClick={() => handleHidePhoto(photo.id)}
+                            className="px-2 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded"
+                          >Hide</button>
+                        ) : (
+                          <button
+                            onClick={() => handleDeletePhoto(photo.id)}
+                            className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded"
+                          >Delete</button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
