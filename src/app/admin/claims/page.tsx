@@ -125,8 +125,22 @@ export default function ClaimsQueue() {
   const handleRevoke = async () => {
     if (!editingClaim) return;
     if (!confirm('Revoke this claim? The store will go back to unclaimed.')) return;
-    await supabase.from('store_claims').update({ status: 'pending', reviewed_at: null }).eq('id', editingClaim.id);
-    await supabase.from('stores').update({ is_claimed: false, claimed_at: null, owner_user_id: null }).eq('id', editingClaim.stores?.id);
+
+    const res = await fetch('/api/claims/revoke', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        claimId: editingClaim.id,
+        storeId: editingClaim.stores?.id,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert('Failed to revoke: ' + (data.error || 'Unknown error'));
+      return;
+    }
+
     setEditingClaim(null);
     await loadClaims();
   };
